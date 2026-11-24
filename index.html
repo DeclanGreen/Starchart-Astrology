@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Sunwheel sun charts</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Jost:wght@400;500;600&family=Noto+Sans+Symbols&family=Noto+Sans+Symbols+2&display=swap" rel="stylesheet">
+<style>
+/* VOICE: quiet, elegant, a little mysterious; exact wherever numbers appear
+   IDEA: an engraved plate from an old celestial atlas, cast for one birthday
+   PICTURE: the chart wheel — fine-ruled zodiac ring, planet glyphs, a web of aspects
+   COLOUR and TYPE: spruce-ink night, parchment ink, vermilion accent, verdigris support; Cormorant Garamond + Jost
+   LAYOUT: form beside a large wheel, the reading below, saved profiles, then the comparison bi-wheel */
+:root{color-scheme:dark;--bg:#0b181b;--plate:#10242a;--card:#12282e;--ink:#efe7d6;--mute:#a3b2ac;--line:#2c4a50;--acc:#ef6a4c;--ver:#6fb8a8;--sym:"Noto Sans Symbols","Noto Sans Symbols 2","Segoe UI Symbol","Apple Symbols",sans-serif}
+*{box-sizing:border-box;min-width:0}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 Jost,system-ui,sans-serif;overflow-x:clip}
+.band{padding:clamp(28px,4vw,64px) max(5vw,16px)}
+.wrap{max-width:1240px;margin:0 auto}
+h1,h2,h3{font-family:"Cormorant Garamond",Georgia,serif;font-weight:600;line-height:1.05;text-wrap:balance;margin:0}
+h1{font-size:clamp(34px,5vw,52px)}h2{font-size:clamp(28px,3.4vw,38px);margin-bottom:6px}h3{font-size:25px;margin:26px 0 6px}
+.g{font-family:var(--sym)}
+header.band{padding-bottom:12px;background:radial-gradient(1px 1px at 12% 30%,#efe7d6aa 50%,transparent 51%),radial-gradient(1px 1px at 68% 18%,#efe7d688 50%,transparent 51%),radial-gradient(1.5px 1.5px at 84% 62%,#efe7d699 50%,transparent 51%),radial-gradient(1px 1px at 40% 70%,#efe7d666 50%,transparent 51%),radial-gradient(1px 1px at 92% 12%,#efe7d6aa 50%,transparent 51%)}
+.brand{display:flex;gap:10px;align-items:center;color:var(--acc);font-weight:500;margin-bottom:12px}
+.sub{color:var(--mute);max-width:62ch;margin:10px 0 0}
+nav.scroll{display:flex;gap:18px;margin-top:18px;flex-wrap:wrap}nav a{color:var(--ink);text-decoration:none;border-bottom:1px solid var(--line);padding:6px 0}nav a:hover{border-color:var(--acc)}
+.lab{display:grid;grid-template-columns:minmax(0,340px) minmax(0,1fr);gap:clamp(20px,3vw,44px);align-items:start}
+form,.panel{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px}
+label{display:block;font-size:14px;color:var(--mute);margin:14px 0 5px}label:first-child{margin-top:0}
+input,select{width:100%;font:16px Jost,sans-serif;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:9px;padding:10px 12px;min-height:44px}
+input:focus-visible,select:focus-visible,button:focus-visible,a:focus-visible,summary:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+.row2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px}
+details{margin-top:12px;font-size:14px;color:var(--mute)}summary{cursor:pointer;min-height:32px;display:flex;align-items:center}
+.btns{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+button{font:500 15px Jost,sans-serif;min-height:44px;padding:0 16px;border-radius:999px;border:1px solid var(--line);background:transparent;color:var(--ink);cursor:pointer}
+button.pri{background:var(--acc);border-color:var(--acc);color:#1b0d08}button:hover{border-color:var(--acc)}
+.msg{color:var(--acc);font-size:14px;min-height:1.2em;margin:10px 0 0}
+.hint{font-size:13px;color:var(--mute);margin:12px 0 0}
+.stage{display:grid;gap:14px}
+.ctitle{display:flex;flex-wrap:wrap;justify-content:space-between;gap:4px 16px;align-items:baseline}
+.ctitle h2{font-size:clamp(28px,3.4vw,40px)}.ctitle p{margin:0;color:var(--mute);font-size:15px}
+.fig{width:100%;max-width:640px;margin:0 auto;aspect-ratio:1}.fig svg{width:100%;height:100%;display:block}
+@media(prefers-reduced-motion:no-preference){.fig svg{animation:turn 1.2s cubic-bezier(.2,.7,.2,1)}@keyframes turn{from{transform:rotate(-12deg);opacity:0}}}
+table{width:100%;border-collapse:collapse;font-size:15px}th,td{padding:7px 8px;border-bottom:1px solid var(--line);text-align:left}th{color:var(--mute);font-weight:500;font-size:13px}td.n{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}
+.reading{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:0 clamp(24px,4vw,56px)}
+.reading>div{max-width:68ch}.reading p{margin:6px 0}.lede{font-family:"Cormorant Garamond",serif;font-size:22px;line-height:1.35}
+.plist{list-style:none;padding:0;margin:0}.plist li{padding:10px 0;border-bottom:1px solid var(--line)}.plist b{font-weight:600}.plist span{color:var(--mute);font-size:14px}
+.bal{display:grid;gap:6px;margin:10px 0}.bar{display:grid;grid-template-columns:7em minmax(0,1fr) 2.4em;gap:10px;align-items:center;font-size:14px}.bar i{display:block;height:8px;border-radius:9px;background:var(--line)}.bar i b{display:block;height:100%;border-radius:9px}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px;margin-top:16px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 16px}.card h4{margin:0;font:600 17px Jost,sans-serif}.card p{margin:2px 0 10px;color:var(--mute);font-size:14px}.card .btns{margin-top:0}.card button{min-height:38px;padding:0 12px;font-size:14px}
+.empty{color:var(--mute);border:1px dashed var(--line);border-radius:12px;padding:18px;margin-top:16px}
+.cmp{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:clamp(20px,3vw,44px);align-items:start;margin-top:18px}
+.pick{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px;max-width:640px}
+.legend{display:flex;gap:16px;flex-wrap:wrap;font-size:14px;color:var(--mute);justify-content:center}.legend b{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px}
+.meters{display:grid;gap:10px;margin:14px 0 6px}.meters .bar{grid-template-columns:6em minmax(0,1fr) 3em;font-size:15px}.meters .bar i{height:12px}
+.big{font-family:"Cormorant Garamond",serif;font-size:clamp(40px,6vw,60px);line-height:1;color:var(--acc)}
+.fbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:14px}.fbar input{width:auto}.fbar button{min-width:44px}
+.week{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px;margin-top:14px;max-width:760px}
+.day{border-radius:12px;min-height:78px;padding:8px 2px;display:grid;justify-items:center;align-content:center;gap:1px;font-size:13px;line-height:1.3}.day b{font-size:17px;font-weight:600}.day i{width:9px;height:9px;border-radius:50%;margin-top:3px}.day.on{border-color:var(--acc);background:var(--card)}.day.today b{color:var(--acc)}
+.chip{display:inline-block;border:1px solid var(--line);border-radius:999px;padding:3px 12px;font-size:14px;margin:0 6px 6px 0}
+#toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 18px;border-radius:999px;font-size:15px;opacity:0;pointer-events:none;transition:opacity .25s;max-width:92vw;text-align:center}#toast.on{opacity:1}
+footer{color:var(--mute);font-size:13px;border-top:1px solid var(--line)}
+@media(max-width:900px){.lab,.cmp,.reading{grid-template-columns:minmax(0,1fr)}.stage{order:-1}}
+@media(max-width:600px){table{font-size:13px}.pick{grid-template-columns:minmax(0,1fr)}}
+@media print{body{background:#fff;color:#111}form,nav,.btns,#saved,#compare,footer{display:none}.lab{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header class="band"><div class="wrap">
+  <div class="brand"><span class="g" style="font-size:22px">☉&#xFE0E;</span> Sunwheel</div>
+  <h1>The sky on the day you were born</h1>
+  <p class="sub">Enter a birth date and place to cast a sun chart — the Sun's sign becomes the first house, so it works without a birth time. Add a time if you know it for an exact Moon and your rising sign.</p>
+  <nav class="scroll"><a href="#chart">Chart</a><a href="#reading-sec">Reading</a><a href="#forecast">Daily forecast</a><a href="#saved">Saved profiles</a><a href="#compare">Compare two charts</a></nav>
+</div></header>
+
+<main>
+<section class="band" id="chart" style="padding-top:20px"><div class="wrap lab">
+  <form id="f" autocomplete="off">
+    <label for="ld">Load a saved profile</label><select id="ld"></select>
+    <div style="border-top:1px solid var(--line);margin:16px 0 0"></div>
+    <label for="nm">Name</label><input id="nm" placeholder="e.g. Alex">
+    <label for="dt">Date of birth</label><input id="dt" type="date" min="1900-01-01" max="2100-12-31" required>
+    <label for="tm">Time of birth <span style="opacity:.8">(optional)</span></label><input id="tm" type="time">
+    <label for="pl">Place of birth</label><input id="pl" list="cities" placeholder="Start typing a city">
+    <datalist id="cities"></datalist>
+    <details id="man"><summary>Place not listed? Enter coordinates</summary>
+      <div class="row2"><div><label for="la">Latitude (N +)</label><input id="la" type="number" step="0.01" placeholder="51.51"></div><div><label for="lo">Longitude (E +)</label><input id="lo" type="number" step="0.01" placeholder="-0.13"></div></div>
+      <label for="of">UTC offset at birth, hours</label><input id="of" type="number" step="0.25" placeholder="0 for GMT, 1 for BST">
+    </details>
+    <p class="msg" id="msg" role="status"></p>
+    <div class="btns">
+      <button type="submit" class="pri" id="saveBtn">Save profile</button>
+      <button type="button" id="newBtn">New</button>
+    </div>
+    <div class="btns" style="margin-top:8px">
+      <button type="button" id="printBtn">Download printout</button>
+      <button type="button" id="svgBtn">Chart image (SVG)</button>
+    </div>
+    <p class="hint" id="storeNote">Profiles are saved in this browser.</p>
+  </form>
+  <div class="stage">
+    <div class="ctitle"><h2 id="ctitle">—</h2><p id="csub"></p></div>
+    <div class="fig" id="wheel" role="img" aria-label="Sun chart wheel"></div>
+    <div class="panel" style="padding:8px 14px"><table id="pos"></table></div>
+  </div>
+</div></section>
+
+<section class="band" id="reading-sec" style="border-top:1px solid var(--line)"><div class="wrap">
+  <div class="ctitle"><h2>Reading</h2><button type="button" id="copyBtn">Copy reading</button></div>
+  <div class="reading" id="reading"></div>
+</div></section>
+
+<section class="band" id="forecast" style="border-top:1px solid var(--line);background:#0e2024"><div class="wrap">
+  <div class="ctitle"><h2 id="fTitle">Daily forecast</h2><p id="fSub"></p></div>
+  <p class="sub" style="margin-top:4px">Where today's planets fall against the chart above. Pick a day, or tap one in the week strip.</p>
+  <div class="fbar"><button type="button" id="fPrev" aria-label="Previous day">‹</button><input type="date" id="fDate" min="1900-01-01" max="2100-12-31" aria-label="Forecast date"><button type="button" id="fNext" aria-label="Next day">›</button><button type="button" id="fToday">Today</button></div>
+  <div class="week" id="week"></div>
+  <div class="cmp">
+    <div class="stage" style="order:0">
+      <div class="fig" id="tw" role="img" aria-label="Transit wheel"></div>
+      <div class="legend"><span><b style="background:var(--ink)"></b>Birth chart (inner)</span><span><b style="background:var(--acc)"></b>Sky that day (outer)</span><span><b style="background:var(--ver)"></b>easy</span><span><b style="background:var(--acc)"></b>tense</span></div>
+    </div>
+    <div id="fText"></div>
+  </div>
+</div></section>
+
+<section class="band" id="saved" style="border-top:1px solid var(--line)"><div class="wrap">
+  <h2>Saved profiles</h2>
+  <p class="sub" style="margin-top:4px">Open one to see its chart, or pick two below to compare them.</p>
+  <div id="cards"></div>
+</div></section>
+
+<section class="band" id="compare" style="border-top:1px solid var(--line);background:#0e2024"><div class="wrap">
+  <h2>Compare two charts</h2>
+  <p class="sub" style="margin-top:4px">A synastry bi-wheel: the first person's planets sit inside, the second's outside, with the lines showing how they touch.</p>
+  <div class="cmp">
+    <div class="stage" style="order:0">
+      <div class="pick"><div><label for="ca">First person</label><select id="ca"></select></div><div><label for="cb">Second person</label><select id="cb"></select></div></div>
+      <div class="fig" id="bi" role="img" aria-label="Comparison bi-wheel"></div>
+      <div class="legend"><span><b style="background:var(--ink)"></b><span id="lgA">A</span> (inner)</span><span><b style="background:var(--acc)"></b><span id="lgB">B</span> (outer)</span><span><b style="background:var(--ver)"></b>easy</span><span><b style="background:var(--acc)"></b>tense</span></div>
+    </div>
+    <div>
+      <div id="cmpHead"></div>
+      <div class="btns"><button type="button" id="cmpPrint">Download comparison printout</button></div>
+      <div id="cmpText"></div>
+    </div>
+  </div>
+</div></section>
+</main>
+<footer class="band" style="padding-block:24px"><div class="wrap">Planet positions are calculated in your browser from orbital elements, accurate to within a few arc-minutes for 1900–2100. Astrology is for reflection and fun rather than prediction. Sample profiles are marked "(sample)".</div></footer>
+<div id="toast" role="status"></div>
+
+<script>
+{
+const R=Math.PI/180,S=x=>Math.sin(x*R),C=x=>Math.cos(x*R),A2=(y,x)=>Math.atan2(y,x)/R,rev=x=>((x%360)+360)%360;
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const G=s=>s+'︎',cap=s=>s.charAt(0).toUpperCase()+s.slice(1);
+const ord=n=>n+(n===1?'st':n===2?'nd':n===3?'rd':'th');
+const fmt=d=>Math.floor(d)+'°'+String(Math.floor((d%1)*60)).padStart(2,'0')+'′';
+
+const SIGNS=[
+{n:'Aries',g:'♈',el:'Fire',mo:'Cardinal',ru:'Mars',kw:['bold','direct','pioneering'],need:'room to act first and think later',sun:'Aries Suns are starters. Your vitality rises when there is something to push against — a first, a challenge, a blank map. You are honest to the point of bluntness, quick to flare and quicker to forgive. Patience turns raw courage into real leadership.'},
+{n:'Taurus',g:'♉',el:'Earth',mo:'Fixed',ru:'Venus',kw:['steady','sensual','patient'],need:'comfort, routine and things you can touch',sun:'Taurus Suns build. You trust what you can see, taste and hold, and you are prepared to wait for it. Loyal, calm and stubbornly consistent, you give other people a sense of solid ground. Your growth edge is letting change in before it has to break down the door.'},
+{n:'Gemini',g:'♊',el:'Air',mo:'Mutable',ru:'Mercury',kw:['curious','quick','talkative'],need:'conversation, variety and fresh ideas',sun:'Gemini Suns connect. Your mind moves fast, collecting stories, people and ideas and passing them along. You are witty, adaptable and often doing two things at once. The task is depth: choosing a few threads and following them all the way through.'},
+{n:'Cancer',g:'♋',el:'Water',mo:'Cardinal',ru:'the Moon',kw:['protective','tender','tenacious'],need:'a safe nest and people who feel like family',sun:'Cancer Suns nurture. You lead from the heart and remember everything — moods, kindnesses, slights. Under a careful shell is a fierce instinct to shelter the people you love. Your strength grows when you give yourself the care you offer everyone else.'},
+{n:'Leo',g:'♌',el:'Fire',mo:'Fixed',ru:'the Sun',kw:['warm','expressive','proud'],need:'to be seen, appreciated and free to play',sun:'Leo Suns radiate. You are generous with warmth and attention, and you want a life you can be proud of. Creative and loyal, you light up a room on purpose. Maturity comes from shining without needing the applause to keep going.'},
+{n:'Virgo',g:'♍',el:'Earth',mo:'Mutable',ru:'Mercury',kw:['precise','helpful','discerning'],need:'order, usefulness and a job done well',sun:'Virgo Suns refine. You notice what others miss and quietly make it better. Practical, modest and analytical, you show love through service and attention to detail. Your growth lies in treating yourself with the patience you give a problem worth solving.'},
+{n:'Libra',g:'♎',el:'Air',mo:'Cardinal',ru:'Venus',kw:['gracious','fair','diplomatic'],need:'harmony, beauty and a partner in thought',sun:'Libra Suns balance. You see every side, care about fairness and have a feel for beauty and good manners. Relationships are where you come alive and learn the most. The challenge is knowing what you want before weighing what everyone else wants.'},
+{n:'Scorpio',g:'♏',el:'Water',mo:'Fixed',ru:'Pluto and Mars',kw:['intense','private','perceptive'],need:'trust, depth and emotional honesty',sun:'Scorpio Suns transform. You go beneath the surface, drawn to what is hidden, true and powerful. Fiercely loyal and hard to fool, you would rather have one deep bond than many easy ones. Your power grows when you let yourself be known as well as knowing others.'},
+{n:'Sagittarius',g:'♐',el:'Fire',mo:'Mutable',ru:'Jupiter',kw:['adventurous','candid','optimistic'],need:'space, meaning and a horizon to head for',sun:'Sagittarius Suns explore. You are restless for experience, knowledge and a philosophy that makes sense of it all. Frank and funny, you lift people with your faith that things will work out. The lesson is commitment: staying long enough for the journey to bear fruit.'},
+{n:'Capricorn',g:'♑',el:'Earth',mo:'Cardinal',ru:'Saturn',kw:['ambitious','disciplined','dry-witted'],need:'structure, respect and progress you can measure',sun:'Capricorn Suns climb. You take the long view, carry responsibility well and get steadily better with age. Reserved at first, you have a sharp, dry humour and a deep loyalty. Growth comes from valuing who you are, not only what you have achieved.'},
+{n:'Aquarius',g:'♒',el:'Air',mo:'Fixed',ru:'Uranus and Saturn',kw:['inventive','independent','idealistic'],need:'freedom, friendship and a cause',sun:'Aquarius Suns innovate. You think in systems and futures, and you trust your own conclusions even when they are unpopular. Friendly yet a little detached, you care about people collectively as much as individually. The work is letting closeness in without feeling caged by it.'},
+{n:'Pisces',g:'♓',el:'Water',mo:'Mutable',ru:'Neptune and Jupiter',kw:['imaginative','compassionate','intuitive'],need:'solitude, art and room to dream',sun:'Pisces Suns dissolve boundaries. You feel what others feel and imagine what others cannot, which makes you kind, artistic and spiritually curious. You flow around obstacles rather than through them. Your strength grows with clear boundaries that protect your gentleness.'}];
+const PL=[
+{k:'sun',n:'Sun',g:'☉',m:'identity and vitality',v:'you shine'},
+{k:'moon',n:'Moon',g:'☽',m:'emotions and instincts',v:'you feel and self-soothe'},
+{k:'mercury',n:'Mercury',g:'☿',m:'mind and communication',v:'you think, learn and speak'},
+{k:'venus',n:'Venus',g:'♀',m:'love, taste and values',v:'you love, attract and enjoy'},
+{k:'mars',n:'Mars',g:'♂',m:'drive and desire',v:'you act, compete and assert yourself'},
+{k:'jupiter',n:'Jupiter',g:'♃',m:'growth and luck',v:'you grow and find opportunity'},
+{k:'saturn',n:'Saturn',g:'♄',m:'discipline and limits',v:'you build, take responsibility and face your fears'},
+{k:'uranus',n:'Uranus',g:'♅',m:'change and originality',v:'your generation rebels and innovates',gen:1},
+{k:'neptune',n:'Neptune',g:'♆',m:'dreams and ideals',v:'your generation dreams and idealises',gen:1},
+{k:'pluto',n:'Pluto',g:'♇',m:'power and transformation',v:'your generation transforms',gen:1}];
+const HOUSES=['self-image and first impressions','money, possessions and self-worth','siblings, learning and everyday talk','home, family and roots','creativity, romance and play','work routines and health','partnerships and close one-to-ones','intimacy, shared resources and change','travel, belief and higher learning','career and public standing','friends, groups and hopes','solitude, rest and the inner life'];
+const ASP=[
+{n:'conjunction',a:0,o:8,g:'☌',k:'c',v:'fuses with',t:'These energies act as one — a defining emphasis.'},
+{n:'sextile',a:60,o:4,g:'⚹',k:'s',v:'cooperates easily with',t:'An opportunity that rewards a little effort.'},
+{n:'square',a:90,o:6,g:'□',k:'h',v:'grinds against',t:'Friction that pushes growth; often where drive comes from.'},
+{n:'trine',a:120,o:6,g:'△',k:'s',v:'flows into',t:'A natural gift — easy enough to take for granted.'},
+{n:'opposition',a:180,o:7,g:'☍',k:'h',v:'pulls against',t:'A see-saw to balance, often met through other people.'}];
+const ELQ={Fire:'enthusiasm, courage and instinct',Earth:'practicality, patience and the senses',Air:'ideas, perspective and conversation',Water:'feeling, empathy and memory'};
+const MODQ={Cardinal:'starting things',Fixed:'sustaining things',Mutable:'adapting and connecting'};
+const SCREEN={plate:'#10242a',line:'#2f5157',ink:'#efe7d6',mute:'#9fb0aa',acc:'#ef6a4c',soft:'#6fb8a8',hard:'#ef6a4c',tint:.13,el:{Fire:'#f08060',Earth:'#d2b56b',Air:'#a9cbe0',Water:'#72c0ae'}};
+const PRINT={plate:'#ffffff',line:'#bdb6a7',ink:'#1d2a2c',mute:'#5d6866',acc:'#c2412a',soft:'#2f8a78',hard:'#c2412a',tint:.15,el:{Fire:'#c9553a',Earth:'#9a7b2c',Air:'#4f86a8',Water:'#2f8a78'}};
+
+/* ---------- astronomy (Schlyter's low-precision elements) ---------- */
+function kepler(M,e){let E=M+(e/R)*S(M)*(1+e*C(M));for(let k=0;k<10;k++)E-=(E-(e/R)*S(E)-M)/(1-e*C(E));return E}
+function orbit(N,i,w,a,e,M){const E=kepler(rev(M),e),xv=a*(C(E)-e),yv=a*Math.sqrt(1-e*e)*S(E),v=A2(yv,xv),r=Math.hypot(xv,yv),
+ xh=r*(C(N)*C(v+w)-S(N)*S(v+w)*C(i)),yh=r*(S(N)*C(v+w)+C(N)*S(v+w)*C(i)),zh=r*S(v+w)*S(i);
+ return{lon:rev(A2(yh,xh)),lat:A2(zh,Math.hypot(xh,yh)),r}}
+function positions(d){
+ const ws=282.9404+4.70935e-5*d,es=0.016709-1.151e-9*d,Ms=rev(356.0470+0.9856002585*d);
+ const sun=orbit(0,0,ws,1,es,Ms),out={sun:sun.lon};
+ const Nm=125.1228-0.0529538083*d,wm=318.0634+0.1643573223*d,Mm=rev(115.3654+13.0649929509*d);
+ const mo=orbit(Nm,5.1454,wm,60.2666,0.0549,Mm),Lm=Nm+wm+Mm,Ls=ws+Ms,D=Lm-Ls,F=Lm-Nm;
+ out.moon=rev(mo.lon-1.274*S(Mm-2*D)+0.658*S(2*D)-0.186*S(Ms)-0.059*S(2*Mm-2*D)-0.057*S(Mm-2*D+Ms)+0.053*S(Mm+2*D)+0.046*S(2*D-Ms)+0.041*S(Mm-Ms)-0.035*S(D)-0.031*S(Mm+Ms)-0.015*S(2*F-2*D)+0.011*S(Mm-4*D));
+ const el={
+  mercury:[48.3313+3.24587e-5*d,7.0047+5e-8*d,29.1241+1.01444e-5*d,0.387098,0.205635+5.59e-10*d,168.6562+4.0923344368*d],
+  venus:[76.6799+2.4659e-5*d,3.3946+2.75e-8*d,54.891+1.38374e-5*d,0.72333,0.006773-1.302e-9*d,48.0052+1.6021302244*d],
+  mars:[49.5574+2.11081e-5*d,1.8497-1.78e-8*d,286.5016+2.92961e-5*d,1.523688,0.093405+2.516e-9*d,18.6021+0.5240207766*d],
+  jupiter:[100.4542+2.76854e-5*d,1.303-1.557e-7*d,273.8777+1.64505e-5*d,5.20256,0.048498+4.469e-9*d,19.895+0.0830853001*d],
+  saturn:[113.6634+2.3898e-5*d,2.4886-1.081e-7*d,339.3939+2.97661e-5*d,9.55475,0.055546-9.499e-9*d,316.967+0.0334442282*d],
+  uranus:[74.0005+1.3978e-5*d,0.7733+1.9e-8*d,96.6612+3.0565e-5*d,19.18171-1.55e-8*d,0.047318+7.45e-9*d,142.5905+0.011725806*d],
+  neptune:[131.7806+3.0173e-5*d,1.77-2.55e-7*d,272.8461-6.027e-6*d,30.05826+3.313e-8*d,0.008606+2.15e-9*d,260.2471+0.005995147*d]};
+ const Mj=rev(el.jupiter[5]),Mt=rev(el.saturn[5]),Mu=rev(el.uranus[5]);
+ const pert={jupiter:-0.332*S(2*Mj-5*Mt-67.6)-0.056*S(2*Mj-2*Mt+21)+0.042*S(3*Mj-5*Mt+21)-0.036*S(Mj-2*Mt)+0.022*C(Mj-Mt)+0.023*S(2*Mj-3*Mt+52)-0.016*S(Mj-5*Mt-69),
+  saturn:0.812*S(2*Mj-5*Mt-67.6)-0.229*C(2*Mj-4*Mt-2)+0.119*S(Mj-2*Mt-3)+0.046*S(2*Mj-6*Mt-69)+0.014*S(Mj-3*Mt+32),
+  uranus:0.04*S(Mt-2*Mu+6)+0.035*S(Mt-3*Mu+33)-0.015*S(Mj-Mu+20)};
+ const xs=sun.r*C(sun.lon),ys=sun.r*S(sun.lon);
+ const geo=h=>rev(A2(h.r*S(h.lon)*C(h.lat)+ys,h.r*C(h.lon)*C(h.lat)+xs));
+ for(const k in el){const h=orbit(...el[k]);h.lon+=pert[k]||0;out[k]=geo(h)}
+ const Sp=50.03+0.033459652*d,P=238.95+0.003968789*d;
+ out.pluto=geo({lon:238.9508+0.00400703*d-19.799*S(P)+19.848*C(P)+0.897*S(2*P)-4.956*C(2*P)+0.61*S(3*P)+1.211*C(3*P)-0.341*S(4*P)-0.19*C(4*P)+0.128*S(5*P)-0.034*C(5*P)-0.038*S(6*P)+0.031*C(6*P)+0.02*S(Sp-P)-0.01*C(Sp-P)+3.82394e-5*d,
+  lat:-3.9082-5.453*S(P)-14.975*C(P)+3.527*S(2*P)+1.673*C(2*P)-1.051*S(3*P)+0.328*C(3*P)+0.179*S(4*P)-0.292*C(4*P)+0.019*S(5*P)+0.1*C(5*P)-0.031*S(6*P)-0.026*C(6*P)+0.011*C(Sp-P),
+  r:40.72+6.68*S(P)+6.9*C(P)-1.18*S(2*P)-0.03*C(2*P)+0.15*S(3*P)-0.14*C(3*P)});
+ return out}
+function tzOff(tz,ms){const f=new Intl.DateTimeFormat('en-US',{timeZone:tz,hourCycle:'h23',year:'numeric',month:'numeric',day:'numeric',hour:'numeric',minute:'numeric',second:'numeric'});const p={};for(const x of f.formatToParts(new Date(ms)))p[x.type]=x.value;return(Date.UTC(+p.year,p.month-1,+p.day,+p.hour%24,+p.minute,+p.second)-ms)/6e4}
+function chart(p){
+ const[y,m,dd]=p.date.split('-').map(Number),t=p.time?p.time.split(':').map(Number):[12,0],g=Date.UTC(y,m-1,dd,t[0],t[1]);let ms;
+ if(p.tz){let o=tzOff(p.tz,g);ms=g-o*6e4;o=tzOff(p.tz,ms);ms=g-o*6e4}else ms=g-(Number(p.off)||0)*36e5;
+ const jd=ms/864e5+2440587.5,d=jd-2451543.5,now=positions(d),nx=positions(d+1),sunSign=Math.floor(now.sun/30);
+ const pl=PL.map(P=>{const lon=now[P.k],sg=Math.floor(lon/30),mv=rev(nx[P.k]-lon+180)-180;return{...P,lon,sg,deg:lon%30,h:(sg-sunSign+12)%12+1,retro:mv<0}});
+ let asc=null;if(p.time){const ecl=23.4393-3.563e-7*d,lst=rev(280.46061837+360.98564736629*(jd-2451545)+Number(p.lon));asc=rev(A2(C(lst),-(S(lst)*C(ecl)+Math.tan(p.lat*R)*S(ecl))))}
+ return{p,pl,sunSign,asc}}
+const angd=(a,b)=>{const x=Math.abs(a-b)%360;return x>180?360-x:x};
+function aspects(L1,L2,f=1){const r=[],same=L1===L2;L1.forEach((a,i)=>L2.forEach((b,j)=>{if(same&&j<=i)return;if(a.gen&&b.gen)return;const s=angd(a.lon,b.lon);for(const x of ASP){const o=Math.abs(s-x.a);if(o<=x.o*f){r.push({a,b,x,o,w:1-o/(x.o*f)});break}}}));return r.sort((u,v)=>v.w-u.w)}
+
+/* ---------- the wheel ---------- */
+function spread(list,sep){const s=list.map(p=>({p,v:p.lon})).sort((a,b)=>a.v-b.v),n=s.length;for(let it=0;it<60;it++){let mv=false;for(let i=0;i<n;i++){const a=s[i],b=s[(i+1)%n],gap=rev(b.v-a.v);if(gap<sep){const sh=(sep-gap)/2+.01;a.v-=sh;b.v+=sh;mv=true}}if(!mv)break}return s}
+function wheel(A,B,pal,links){
+ const base=A.sunSign*30,ang=L=>(180+L-base)*R,pt=(r,L)=>[(300+r*Math.cos(ang(L))).toFixed(1),(300-r*Math.sin(ang(L))).toFixed(1)];
+ const bi=!!B,z1=290,z0=bi?252:246,FS=`font-family='Noto Sans Symbols','Noto Sans Symbols 2','Segoe UI Symbol',sans-serif`;
+ const txt=(x,y,t,sz,col,extra='')=>`<text x="${x}" y="${y}" text-anchor="middle" dominant-baseline="central" font-size="${sz}" fill="${col}" ${extra}>${t}</text>`;
+ const ln=(a,b,col,w=1,op=1,extra='')=>`<line x1="${a[0]}" y1="${a[1]}" x2="${b[0]}" y2="${b[1]}" stroke="${col}" stroke-width="${w}" stroke-opacity="${op}" ${extra}/>`;
+ const circ=(r,col,w=1)=>`<circle cx="300" cy="300" r="${r}" fill="none" stroke="${col}" stroke-width="${w}"/>`;
+ let s=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600" font-family="Jost,sans-serif"><circle cx="300" cy="300" r="298" fill="${pal.plate}" stroke="${pal.line}"/>`+circ(294,pal.line,.6);
+ SIGNS.forEach((g,i)=>{const a0=i*30,a1=a0+30,p1=pt(z1,a0),p2=pt(z1,a1),p3=pt(z0,a1),p4=pt(z0,a0),c=pal.el[g.el];
+  s+=`<path d="M${p1}A${z1} ${z1} 0 0 0 ${p2}L${p3}A${z0} ${z0} 0 0 1 ${p4}Z" fill="${c}" fill-opacity="${pal.tint}" stroke="${pal.line}"/>`;
+  const q=pt((z1+z0)/2,a0+15);s+=txt(q[0],q[1],G(g.g),22,c,FS)});
+ for(let dg=0;dg<360;dg++){const L=dg%10===0?9:dg%5===0?6:3;s+=ln(pt(z0,dg),pt(z0-L,dg),pal.line,dg%10===0?1:.7)}
+ const ring=(list,rt,rg,rl,col,sz)=>{let o='';for(const{p,v}of spread(list,sz>20?8.5:7.5)){const t1=pt(rt,p.lon),t2=pt(rt-8,p.lon),gp=pt(rg,v),ge=pt(rg+14,v);
+   o+=ln(t1,t2,col,2)+ln(t2,ge,col,.8,.5)+txt(gp[0],gp[1],G(p.g),sz,col,FS);
+   if(rl){const lp=pt(rl,v);o+=txt(lp[0],lp[1],Math.floor(p.deg)+'°'+(p.retro?' ℞':''),11,pal.mute)}}return o};
+ const web=(list,ra)=>{let o=circ(ra,pal.line);for(const a of list){if(a.x.k==='c')continue;o+=ln(pt(ra,a.a.lon),pt(ra,a.b.lon),a.x.k==='s'?pal.soft:pal.hard,1.2,(.3+.6*a.w).toFixed(2))}return o};
+ if(!bi){
+  s+=circ(z0,pal.line)+circ(212,pal.line);
+  for(let i=0;i<12;i++){const L=base+i*30,q=pt(229,L+15);s+=txt(q[0],q[1],i+1,12,pal.mute);s+=ln(pt(212,L),pt(140,L),pal.line,.8,1,i%6===0?'':'stroke-dasharray="2 4"')}
+  s+=ln(pt(212,base),pt(140,base),pal.ink,1.4)+ln(pt(212,base+180),pt(140,base+180),pal.ink,1.4);
+  s+=web(aspects(A.pl,A.pl),140)+ring(A.pl,z0,186,160,pal.ink,22);
+  if(A.asc!=null){s+=ln(pt(z0,A.asc),pt(z1+4,A.asc),pal.acc,2);const q=pt(z0-18,A.asc);s+=txt(q[0],q[1],'AC',10,pal.acc,'font-weight="600"')}
+ }else{
+  s+=circ(z0,pal.line)+circ(200,pal.line);
+  s+=web(links||aspects(A.pl,B.pl,.75),128)+ring(B.pl,z0,226,0,pal.acc,19)+ring(A.pl,200,173,149,pal.ink,19);
+ }
+ s+=circ(20,pal.line)+`<circle cx="300" cy="300" r="2.5" fill="${pal.acc}"/></svg>`;return s}
+
+/* ---------- interpretation ---------- */
+const pair=(a,b)=>a===b?'same':((a+b).match(/FireAir|AirFire|EarthWater|WaterEarth/)?'comp':'diff');
+function balance(ch){const e={Fire:0,Earth:0,Air:0,Water:0},m={Cardinal:0,Fixed:0,Mutable:0};ch.pl.forEach((p,i)=>{const w=i<2?2:p.gen?.5:1,S0=SIGNS[p.sg];e[S0.el]+=w;m[S0.mo]+=w});return{e,m}}
+function bars(obj,cols){const tot=Object.values(obj).reduce((a,b)=>a+b,0);return`<div class="bal">`+Object.entries(obj).map(([k,v])=>`<div class="bar"><span>${k}</span><i><b style="width:${(v/tot*100).toFixed(0)}%;background:${cols[k]||'var(--ver)'}"></b></i><span>${Math.round(v/tot*100)}%</span></div>`).join('')+`</div>`}
+function reading(ch,pal=SCREEN){
+ const p=ch.p,sun=ch.pl[0],moon=ch.pl[1],SS=SIGNS[ch.sunSign],MS=SIGNS[moon.sg];
+ const cusp=sun.deg<1?` — right on the cusp with ${SIGNS[(ch.sunSign+11)%12].n}`:sun.deg>29?` — right on the cusp with ${SIGNS[(ch.sunSign+1)%12].n}`:'';
+ let L=`<h3 style="margin-top:0"><span class="g">${G(SS.g)}</span> Sun in ${SS.n}</h3><p class="lede">${SS.sun}</p><p>${SS.el} sign · ${SS.mo} · ruled by ${SS.ru}. Your Sun sits at ${fmt(sun.deg)} ${SS.n}${cusp}.</p>`;
+ const rel=pair(SS.el,MS.el);
+ L+=`<h3><span class="g">${G(MS.g)}</span> Moon in ${MS.n}</h3><p>Emotionally you are ${MS.kw[0]}, ${MS.kw[1]} and ${MS.kw[2]}, and you feel most at home with ${MS.need}. `+
+  (rel==='same'?`Sun and Moon share the ${SS.el} element, so what you want and what you need tend to pull in the same direction.`:rel==='comp'?`Your ${SS.el} Sun and ${MS.el} Moon complement each other: head and heart work as a team.`:`Your ${SS.el} Sun and ${MS.el} Moon speak different languages; honouring both is part of your story.`)+
+  (!p.time&&(moon.deg<6.5||moon.deg>23.5)?` Without a birth time the Moon could have been in ${SIGNS[(moon.sg+(moon.deg<6.5?11:1))%12].n} instead — add a time to be sure.`:'')+`</p>`;
+ if(ch.asc!=null){const AS=SIGNS[Math.floor(ch.asc/30)];L+=`<h3><span class="g">${G(AS.g)}</span> ${AS.n} rising</h3><p>Your Ascendant falls at ${fmt(ch.asc%30)} ${AS.n}: people first meet you as ${AS.kw[0]} and ${AS.kw[1]}. It colours your style and first reactions, while your ${SS.n} Sun is the core underneath.</p>`}
+ const {e,m}=balance(ch),top=Object.entries(e).sort((a,b)=>b[1]-a[1]),miss=top.filter(x=>x[1]===0).map(x=>x[0]),tm=Object.entries(m).sort((a,b)=>b[1]-a[1])[0][0];
+ L+=`<h3>Balance of elements</h3>${bars(e,pal.el)}<p>${top[0][0]} leads your chart, bringing ${ELQ[top[0][0]]}. You are strongest at ${MODQ[tm]} (${tm.toLowerCase()} signs dominate).${miss.length?` Little or no ${miss.join(' or ')} — qualities you may seek in other people: ${miss.map(x=>ELQ[x]).join('; ')}.`:''}</p>`;
+ let Rt=`<h3 style="margin-top:0">Planet by planet</h3><ul class="plist">`+ch.pl.slice(2).map(P=>{const Z=SIGNS[P.sg];
+  return`<li><b><span class="g">${G(P.g)}</span> ${P.n} in ${Z.n}</b> <span>${fmt(P.deg)} · ${ord(P.h)} solar house${P.retro?' · retrograde':''}</span><br>${cap(P.v)} in a ${Z.kw[0]}, ${Z.kw[1]} way${P.gen?'; for you personally it works through ':', especially around '}${HOUSES[P.h-1]}.${P.retro?' Retrograde: this energy turns inward — you revisit and refine before acting.':''}</li>`}).join('')+`</ul>`;
+ const as=aspects(ch.pl,ch.pl).slice(0,8);
+ Rt+=`<h3>Main aspects</h3><ul class="plist">`+(as.length?as.map(a=>`<li><b>${a.a.n} <span class="g">${G(a.x.g)}</span> ${a.b.n}</b> <span>${a.x.n}, orb ${a.o.toFixed(1)}°</span><br>${cap(a.a.m)} ${a.x.v} ${a.b.m}. ${a.x.t}</li>`).join(''):'<li>No tight major aspects — your planets work fairly independently.</li>')+`</ul>`;
+ return[L,Rt]}
+function compare(A,B){
+ const an=esc(A.p.name||'First'),bn=esc(B.p.name||'Second'),sa=SIGNS[A.sunSign],sb=SIGNS[B.sunSign],ma=SIGNS[A.pl[1].sg],mb=SIGNS[B.pl[1].sg];
+ const k=(B.sunSign-A.sunSign+12)%12,kk=Math.min(k,12-k);
+ const DIST=['You share a Sun sign: instant recognition, and the same blind spots.','Your Suns are neighbouring signs — very different styles that can teach each other a great deal.','Your Suns are sextile, two signs apart: friendly, easy-going and good at cooperating.','Your Suns are square, three signs apart: lively friction, strong chemistry and real negotiation.','Your Suns are trine, four signs apart: a natural rapport — you tend to get each other without trying.','Your Suns are quincunx, five signs apart: you fascinate and puzzle each other, and adjustment is the key.','Your Suns are opposite signs: a magnetic pull between two halves of the same axis.'];
+ const er=pair(sa.el,sb.el),mr=pair(ma.el,mb.el),cross=aspects(A.pl,B.pl,.75);
+ const pers=['sun','moon','venus','mars','mercury'],hardy=['mars','saturn','pluto'];let h=0,t=0;
+ for(const a of cross){const w=a.w*(pers.includes(a.a.k)&&pers.includes(a.b.k)?1.5:1);if(a.x.k==='s')h+=w;else if(a.x.k==='h')t+=w;else if(hardy.includes(a.a.k)||hardy.includes(a.b.k)){h+=w/2;t+=w/2}else h+=w}
+ const bonus={same:10,comp:8,diff:-4},ease=Math.min(100,Math.round(h*9)),spark=Math.min(100,Math.round(t*9)),bond=Math.max(5,Math.min(98,Math.round(42+h*7-t*2.5+bonus[er]+bonus[mr]/2)));
+ const ELT={same:(x)=>`two ${x} signs — you recognise each other quickly and share a basic temperament`,comp:(x,y)=>`${x} and ${y} feed each other — a naturally complementary mix`,diff:(x,y)=>`${x} meets ${y} — different operating systems, stimulating or tiring depending on how much you translate for each other`};
+ const find=(p,q)=>cross.find(a=>(a.a.k===p&&a.b.k===q)),vm=[find('venus','mars'),find('mars','venus')].filter(Boolean);
+ const vmT=a=>a.x.k==='s'?'romantic and creative chemistry flows easily':a.x.k==='h'?'there is heat here — attraction mixed with challenge':'a classic signature of strong attraction';
+ const mc=find('mercury','mercury'),mer=pair(SIGNS[A.pl[2].sg].el,SIGNS[B.pl[2].sg].el);
+ const head=`<p class="big">${bond}<span style="font-size:.45em;color:var(--mute)"> / 100</span></p><p style="margin:4px 0 0;color:var(--mute)">Overall resonance for ${an} and ${bn}</p>
+ <div class="meters"><div class="bar"><span>Ease</span><i><b style="width:${ease}%;background:var(--ver)"></b></i><span>${ease}</span></div><div class="bar"><span>Spark</span><i><b style="width:${spark}%;background:var(--acc)"></b></i><span>${spark}</span></div></div>`;
+ let x=`<h3>Core natures</h3><p>${an} is a ${sa.n} Sun and ${bn} a ${sb.n} Sun: ${ELT[er](sa.el,sb.el)}. ${DIST[kk]}</p>
+ <h3>Emotional fit</h3><p>${an}'s Moon in ${ma.n} needs ${ma.need}; ${bn}'s Moon in ${mb.n} needs ${mb.need}. ${mr==='same'?'Your Moons share an element, so you comfort each other in similar ways.':mr==='comp'?'Your Moons are complementary — each tends to give what the other needs.':'Your Moons work differently, so ask rather than assume what comfort looks like.'}${(()=>{const mm=find('moon','moon');return mm?` The Moons form a ${mm.x.n}: ${mm.x.t.toLowerCase()}`:''})()}</p>
+ <h3>Attraction</h3><p>${vm.length?vm.map(a=>`${a.a.k==='venus'?an:bn}'s Venus and ${a.a.k==='venus'?bn:an}'s Mars form a ${a.x.n}: ${vmT(a)}.`).join(' '):'No tight Venus–Mars contact; attraction rests more on the Sun and Moon picture and on shared values.'}</p>
+ <h3>Conversation</h3><p>${mc?`Your Mercuries form a ${mc.x.n} — ${mc.x.k==='s'?'talking is easy and ideas build on each other':mc.x.k==='h'?'debates are lively, and listening is the skill to practise':'you often think alike, finishing each other\'s sentences'}.`:mer==='same'||mer==='comp'?'Your thinking styles are compatible, so conversation has a natural rhythm.':'You think in different ways; that can broaden you both if you stay curious.'}</p>
+ <h3>Key contacts</h3><ul class="plist">`+(cross.slice(0,8).map(a=>`<li><b>${an}'s ${a.a.n} <span class="g">${G(a.x.g)}</span> ${bn}'s ${a.b.n}</b> <span>${a.x.n}, orb ${a.o.toFixed(1)}°</span><br>${cap(a.a.m)} ${a.x.v} ${a.b.m}. ${a.x.t}</li>`).join('')||'<li>No tight contacts between personal planets.</li>')+`</ul>`;
+ const tough=cross.find(a=>a.x.k==='h');x+=`<h3>To grow together</h3><p>${tough?`Watch the ${tough.a.n}–${tough.b.n} ${tough.x.n}: ${a2s(tough)}. Naming it out loud usually takes the sting out.`:'Your contacts are mostly gentle — the risk is drifting into comfort, so keep making new memories together.'}</p>`;
+ return{head,x}}
+const a2s=a=>`where ${a.a.m} ${a.x.v} ${a.b.m}, small differences can feel personal`;
+
+/* ---------- daily forecast ---------- */
+const TQ={sun:'attention and vitality',moon:'moods and needs',mercury:'messages, plans and conversations',venus:'affection, pleasure and money',mars:'energy, urgency and courage',jupiter:'openings and optimism',saturn:'tests, duties and reality checks',uranus:'surprises and sudden change',neptune:'inspiration and a little fog',pluto:'deep pressure to transform'};
+const TORB={sun:2.5,moon:3,mercury:2.5,venus:2.5,mars:2,jupiter:1.5,saturn:1.5,uranus:1,neptune:1,pluto:1};
+const TW={sun:1,moon:.7,mercury:.8,venus:.9,mars:1,jupiter:1.3,saturn:1.4,uranus:1.4,neptune:1.2,pluto:1.5};
+const NW={sun:1.5,moon:1.4,mercury:1,venus:1.1,mars:1.1,jupiter:.8,saturn:.8,uranus:.5,neptune:.5,pluto:.5};
+const LAST={sun:'for a day or two',moon:'for a few hours',mercury:'for a day or two',venus:'for a day or two',mars:'for a few days',jupiter:'a theme for weeks',saturn:'a theme for weeks',uranus:'a backdrop for months',neptune:'a backdrop for months',pluto:'a backdrop for months'};
+const BEST=['fresh starts and putting yourself forward','budgets, shopping and small treats','errands, messages and short trips','home, family and rest','dates, hobbies and creative play','chores, exercise and health admin','meetings, partners and negotiating','deep talks, shared money and letting go','learning, travel plans and big ideas','career moves and being visible','friends, networking and future plans','rest, reflection and finishing things'];
+const jdd=ms=>ms/864e5+2440587.5-2451543.5;
+function skyAt(ms,sunSign){const d=jdd(ms),now=positions(d),nx=positions(d+1);return PL.map(P=>{const lon=now[P.k],sg=Math.floor(lon/30);return{...P,lon,sg,deg:lon%30,h:(sg-sunSign+12)%12+1,retro:rev(nx[P.k]-lon+180)-180<0}})}
+function transits(N,T){const r=[];for(const t of T)for(const n of N.pl){const s=angd(t.lon,n.lon),lim=TORB[t.k];for(const x of ASP){const o=Math.abs(s-x.a);if(o<=lim){r.push({a:t,b:n,t,n,x,o,w:(1-o/lim)*TW[t.k]*NW[n.k]});break}}}return r.sort((u,v)=>v.w-u.w)}
+function dayScore(tr){let s=0;for(const a of tr)s+=a.x.k==='s'?a.w:a.x.k==='h'?-a.w:(['saturn','mars','pluto'].includes(a.t.k)?-.4:.6)*a.w;return s}
+const mood=s=>s>1.2?['Flowing','var(--ver)']:s>.2?['Bright','var(--ver)']:s>-.4?['Mixed','var(--mute)']:s>-1.2?['Testing','var(--acc)']:['Demanding','var(--acc)'];
+const dayMs=(ds,h=12)=>{const[y,m,d]=ds.split('-').map(Number);return new Date(y,m-1,d,h,0).getTime()};
+const isoDay=dt=>`${dt.getFullYear()}-${String(dt.getMonth()+1).padStart(2,'0')}-${String(dt.getDate()).padStart(2,'0')}`;
+const shiftDay=(ds,n)=>{const[y,m,d]=ds.split('-').map(Number);return isoDay(new Date(y,m-1,d+n,12))};
+function moonIngress(ds){const ms0=dayMs(ds,0),ms1=ms0+864e5,sg=ms=>Math.floor(positions(jdd(ms)).moon/30);if(sg(ms0)===sg(ms1))return null;let a=ms0,b=ms1;for(let i=0;i<22;i++){const c=(a+b)/2;if(sg(c)===sg(ms0))a=c;else b=c}return{ms:b,sg:sg(ms1)}}
+function forecast(N,ds){
+ const T=skyAt(dayMs(ds),N.sunSign),all=transits(N,T),tr=all.slice(0,6),score=dayScore(all),[label,col]=mood(score),mo=T[1],MZ=SIGNS[mo.sg],top=tr[0];
+ const verb=x=>x.k==='s'?'support':x.k==='h'?'challenge':'energise';
+ let h=`<p style="margin:0"><span class="chip" style="border-color:${col}">${label} day</span><span class="chip"><span class="g">${G(MZ.g)}</span> Moon in ${MZ.n}</span>${T[2].retro?'<span class="chip">Mercury retrograde</span>':''}</p>`;
+ h+=`<p class="lede" style="margin-top:8px">${top?`${top.t.n} ${top.x.n} your ${top.n.n}: ${TQ[top.t.k]} ${verb(top.x)} your ${top.n.m}.`:'A quiet sky for you — few planets are touching your chart, so the day is yours to shape.'}</p>`;
+ const ing=moonIngress(ds);
+ h+=`<h3>The day's mood</h3><p>The Moon is in ${MZ.n}, your ${ord(mo.h)} solar house, so attention turns to ${HOUSES[mo.h-1]}. The general mood is ${MZ.kw[0]} and ${MZ.kw[1]}.${ing?` It moves into ${SIGNS[ing.sg].n} at about ${new Date(ing.ms).toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'})}, shifting the focus to ${HOUSES[(ing.sg-N.sunSign+12)%12]}.`:''}</p><p><b>Good for:</b> ${BEST[mo.h-1]}.</p>`;
+ h+=`<h3>What's touching your chart</h3><ul class="plist">`+(tr.length?tr.map(a=>`<li><b><span class="g">${G(a.t.g)}</span> ${a.t.n}${a.t.retro?' ℞':''} <span class="g">${G(a.x.g)}</span> your ${a.n.n}</b> <span>${a.x.n}, orb ${a.o.toFixed(1)}° · ${LAST[a.t.k]}</span><br>${cap(TQ[a.t.k])} ${verb(a.x)} your ${a.n.m}. ${a.x.k==='s'?`A good moment to put your ${a.n.m} to work.`:a.x.k==='h'?`Expect some friction around your ${a.n.m}; pause before reacting.`:`Your ${a.n.m} take centre stage — start something on purpose.`}</li>`).join(''):'<li>No close contacts today.</li>')+`</ul>`;
+ if(T[2].retro)h+=`<p class="hint">Mercury is retrograde: good for reviewing, editing and reconnecting; double-check plans, travel and messages.</p>`;
+ return{T,all,score,label,col,html:h}}
+
+/* ---------- places ---------- */
+const CITIES=`London, UK|51.507|-0.128|Europe/London;Birmingham, UK|52.486|-1.89|Europe/London;Manchester, UK|53.481|-2.243|Europe/London;Liverpool, UK|53.408|-2.991|Europe/London;Leeds, UK|53.801|-1.549|Europe/London;Sheffield, UK|53.381|-1.47|Europe/London;Bristol, UK|51.454|-2.588|Europe/London;Newcastle upon Tyne, UK|54.978|-1.618|Europe/London;Nottingham, UK|52.954|-1.158|Europe/London;Leicester, UK|52.637|-1.14|Europe/London;Brighton, UK|50.823|-0.137|Europe/London;Southampton, UK|50.91|-1.404|Europe/London;Plymouth, UK|50.376|-4.143|Europe/London;Norwich, UK|52.63|1.297|Europe/London;Cambridge, UK|52.205|0.122|Europe/London;Oxford, UK|51.752|-1.258|Europe/London;York, UK|53.96|-1.081|Europe/London;Hull, UK|53.745|-0.336|Europe/London;Exeter, UK|50.718|-3.534|Europe/London;Cardiff, UK|51.481|-3.179|Europe/London;Swansea, UK|51.621|-3.944|Europe/London;Edinburgh, UK|55.953|-3.188|Europe/London;Glasgow, UK|55.864|-4.252|Europe/London;Aberdeen, UK|57.15|-2.094|Europe/London;Dundee, UK|56.462|-2.971|Europe/London;Inverness, UK|57.478|-4.224|Europe/London;Belfast, UK|54.597|-5.93|Europe/London;Derry, UK|54.997|-7.309|Europe/London;Dublin, Ireland|53.35|-6.26|Europe/Dublin;Cork, Ireland|51.898|-8.471|Europe/Dublin;Galway, Ireland|53.271|-9.057|Europe/Dublin;Paris, France|48.857|2.352|Europe/Paris;Lyon, France|45.764|4.836|Europe/Paris;Marseille, France|43.297|5.37|Europe/Paris;Brussels, Belgium|50.85|4.352|Europe/Brussels;Amsterdam, Netherlands|52.368|4.904|Europe/Amsterdam;Berlin, Germany|52.52|13.405|Europe/Berlin;Munich, Germany|48.135|11.582|Europe/Berlin;Hamburg, Germany|53.551|9.994|Europe/Berlin;Frankfurt, Germany|50.11|8.682|Europe/Berlin;Vienna, Austria|48.208|16.373|Europe/Vienna;Zurich, Switzerland|47.377|8.541|Europe/Zurich;Geneva, Switzerland|46.204|6.143|Europe/Zurich;Madrid, Spain|40.417|-3.704|Europe/Madrid;Barcelona, Spain|41.385|2.173|Europe/Madrid;Lisbon, Portugal|38.722|-9.139|Europe/Lisbon;Porto, Portugal|41.158|-8.629|Europe/Lisbon;Rome, Italy|41.903|12.496|Europe/Rome;Milan, Italy|45.464|9.19|Europe/Rome;Naples, Italy|40.852|14.268|Europe/Rome;Athens, Greece|37.984|23.728|Europe/Athens;Istanbul, Turkey|41.008|28.978|Europe/Istanbul;Copenhagen, Denmark|55.676|12.568|Europe/Copenhagen;Stockholm, Sweden|59.329|18.069|Europe/Stockholm;Oslo, Norway|59.914|10.752|Europe/Oslo;Helsinki, Finland|60.17|24.938|Europe/Helsinki;Reykjavik, Iceland|64.147|-21.942|Atlantic/Reykjavik;Warsaw, Poland|52.23|21.012|Europe/Warsaw;Kraków, Poland|50.065|19.945|Europe/Warsaw;Prague, Czechia|50.076|14.438|Europe/Prague;Budapest, Hungary|47.498|19.04|Europe/Budapest;Bucharest, Romania|44.427|26.103|Europe/Bucharest;Sofia, Bulgaria|42.698|23.322|Europe/Sofia;Belgrade, Serbia|44.787|20.457|Europe/Belgrade;Zagreb, Croatia|45.815|15.982|Europe/Zagreb;Kyiv, Ukraine|50.45|30.524|Europe/Kiev;Moscow, Russia|55.756|37.617|Europe/Moscow;Cairo, Egypt|30.044|31.236|Africa/Cairo;Casablanca, Morocco|33.573|-7.59|Africa/Casablanca;Lagos, Nigeria|6.524|3.379|Africa/Lagos;Accra, Ghana|5.604|-0.187|Africa/Accra;Addis Ababa, Ethiopia|9.03|38.74|Africa/Addis_Ababa;Nairobi, Kenya|-1.292|36.822|Africa/Nairobi;Johannesburg, South Africa|-26.204|28.047|Africa/Johannesburg;Cape Town, South Africa|-33.925|18.424|Africa/Johannesburg;Dubai, UAE|25.205|55.271|Asia/Dubai;Riyadh, Saudi Arabia|24.713|46.675|Asia/Riyadh;Tehran, Iran|35.689|51.389|Asia/Tehran;Jerusalem|31.768|35.214|Asia/Jerusalem;Karachi, Pakistan|24.861|67.01|Asia/Karachi;Lahore, Pakistan|31.52|74.359|Asia/Karachi;Delhi, India|28.614|77.209|Asia/Kolkata;Mumbai, India|19.076|72.878|Asia/Kolkata;Bengaluru, India|12.972|77.595|Asia/Kolkata;Kolkata, India|22.573|88.364|Asia/Kolkata;Chennai, India|13.083|80.271|Asia/Kolkata;Dhaka, Bangladesh|23.811|90.413|Asia/Dhaka;Colombo, Sri Lanka|6.927|79.861|Asia/Colombo;Kathmandu, Nepal|27.717|85.324|Asia/Kathmandu;Bangkok, Thailand|13.756|100.502|Asia/Bangkok;Singapore|1.352|103.82|Asia/Singapore;Kuala Lumpur, Malaysia|3.139|101.687|Asia/Kuala_Lumpur;Jakarta, Indonesia|-6.208|106.846|Asia/Jakarta;Manila, Philippines|14.6|120.984|Asia/Manila;Hong Kong|22.32|114.169|Asia/Hong_Kong;Shanghai, China|31.23|121.474|Asia/Shanghai;Beijing, China|39.904|116.407|Asia/Shanghai;Taipei, Taiwan|25.033|121.565|Asia/Taipei;Seoul, South Korea|37.567|126.978|Asia/Seoul;Tokyo, Japan|35.676|139.65|Asia/Tokyo;Osaka, Japan|34.694|135.502|Asia/Tokyo;Sydney, Australia|-33.869|151.209|Australia/Sydney;Melbourne, Australia|-37.814|144.963|Australia/Melbourne;Brisbane, Australia|-27.47|153.026|Australia/Brisbane;Perth, Australia|-31.95|115.86|Australia/Perth;Adelaide, Australia|-34.929|138.601|Australia/Adelaide;Auckland, New Zealand|-36.848|174.763|Pacific/Auckland;Wellington, New Zealand|-41.287|174.776|Pacific/Auckland;Honolulu, USA|21.307|-157.858|Pacific/Honolulu;Anchorage, USA|61.218|-149.9|America/Anchorage;Vancouver, Canada|49.283|-123.121|America/Vancouver;Seattle, USA|47.606|-122.332|America/Los_Angeles;San Francisco, USA|37.775|-122.419|America/Los_Angeles;Los Angeles, USA|34.052|-118.244|America/Los_Angeles;San Diego, USA|32.716|-117.161|America/Los_Angeles;Las Vegas, USA|36.17|-115.14|America/Los_Angeles;Phoenix, USA|33.448|-112.074|America/Phoenix;Denver, USA|39.739|-104.99|America/Denver;Calgary, Canada|51.045|-114.072|America/Edmonton;Dallas, USA|32.777|-96.797|America/Chicago;Houston, USA|29.76|-95.37|America/Chicago;Chicago, USA|41.878|-87.63|America/Chicago;Minneapolis, USA|44.978|-93.265|America/Chicago;New Orleans, USA|29.951|-90.072|America/Chicago;Atlanta, USA|33.749|-84.388|America/New_York;Miami, USA|25.762|-80.192|America/New_York;Washington DC, USA|38.907|-77.037|America/New_York;Philadelphia, USA|39.953|-75.165|America/New_York;New York, USA|40.713|-74.006|America/New_York;Boston, USA|42.36|-71.059|America/New_York;Detroit, USA|42.331|-83.046|America/Detroit;Toronto, Canada|43.653|-79.383|America/Toronto;Montreal, Canada|45.502|-73.567|America/Toronto;Mexico City, Mexico|19.433|-99.133|America/Mexico_City;Havana, Cuba|23.113|-82.366|America/Havana;Kingston, Jamaica|17.971|-76.793|America/Jamaica;Bogotá, Colombia|4.711|-74.072|America/Bogota;Caracas, Venezuela|10.481|-66.904|America/Caracas;Lima, Peru|-12.046|-77.043|America/Lima;Santiago, Chile|-33.449|-70.669|America/Santiago;Buenos Aires, Argentina|-34.604|-58.382|America/Argentina/Buenos_Aires;São Paulo, Brazil|-23.551|-46.633|America/Sao_Paulo;Rio de Janeiro, Brazil|-22.907|-43.173|America/Sao_Paulo`.split(';').map(r=>{const[n,la,lo,tz]=r.split('|');return{n,lat:+la,lon:+lo,tz}});
+const city=n=>CITIES.find(c=>c.n.toLowerCase()===String(n||'').trim().toLowerCase());
+$('#cities').innerHTML=CITIES.map(c=>`<option value="${esc(c.n)}"></option>`).join('');
+const mk=(id,name,date,time,place)=>{const c=city(place);return{id,name,date,time,place,lat:c.lat,lon:c.lon,tz:c.tz}};
+const SAMPLES=[mk('sample-a','Robin (sample)','1992-06-21','14:20','Bristol, UK'),mk('sample-b','Sam (sample)','1994-02-03','','Manchester, UK')];
+
+/* ---------- storage ---------- */
+const valid=p=>p&&typeof p.id==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(p.date)&&isFinite(p.lat)&&isFinite(p.lon);
+const store={items:[],col:null,
+ local(){try{return(JSON.parse(localStorage.getItem('sunwheel.profiles')||'[]')||[]).filter(valid)}catch(e){return[]}},
+ keep(){try{localStorage.setItem('sunwheel.profiles',JSON.stringify(this.items))}catch(e){}},
+ async init(){this.items=this.local();renderSaved();
+  try{if(!window.claude||!claude.use)return;const[db,u]=await Promise.all([claude.use('db'),claude.use('user')]);if(!db||!u)return;const id=await u.id();if(!id)return;
+   const col=db.collection('data/users/'+id),snap=await Promise.race([col.get(),new Promise((_,r)=>setTimeout(()=>r('timeout'),10000))]);
+   const remote=snap.docs.map(d=>({...d.data()})).filter(valid),ids=new Set(remote.map(x=>x.id));
+   for(const x of this.items)if(!ids.has(x.id)){try{await col.doc(x.id).set(x);remote.push(x)}catch(e){}}
+   this.col=col;this.items=remote;this.keep();$('#storeNote').textContent='Profiles are saved to your Claude account, so they follow you to other devices.';renderSaved()}catch(e){}},
+ async save(p){const i=this.items.findIndex(x=>x.id===p.id);if(i>=0)this.items[i]=p;else this.items.push(p);this.keep();renderSaved();if(this.col){try{await this.col.doc(p.id).set(p)}catch(e){toast('Saved in this browser only — the account copy could not be updated.')}}},
+ async del(id){this.items=this.items.filter(x=>x.id!==id);this.keep();renderSaved();if(this.col){try{await this.col.doc(id).delete()}catch(e){}}}};
+
+/* ---------- UI ---------- */
+let cur=null,editing=null;
+const toast=m=>{const t=$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(toast.h);toast.h=setTimeout(()=>t.classList.remove('on'),3200)};
+function readForm(){
+ const name=$('#nm').value.trim(),date=$('#dt').value,time=$('#tm').value,place=$('#pl').value.trim(),c=city(place);
+ if(!/^\d{4}-\d{2}-\d{2}$/.test(date))return{err:'Enter a date of birth.'};const y=+date.slice(0,4);if(y<1900||y>2100)return{err:'Dates between 1900 and 2100 are supported.'};
+ const base={id:editing||'',name:name||'Unnamed',date,time,place};
+ if(c)return{...base,place:c.n,lat:c.lat,lon:c.lon,tz:c.tz};
+ const la=parseFloat($('#la').value),lo=parseFloat($('#lo').value),of=parseFloat($('#of').value);
+ if(isFinite(la)&&isFinite(lo)&&Math.abs(la)<=90&&Math.abs(lo)<=180)return{...base,place:place||`${la.toFixed(2)}, ${lo.toFixed(2)}`,lat:la,lon:lo,off:isFinite(of)?of:Math.round(lo/15)};
+ return{err:'Pick a place from the list, or open "Place not listed?" and enter coordinates.'}}
+function fillForm(p){editing=p.id&&!p.id.startsWith('sample')?p.id:null;$('#nm').value=p.name||'';$('#dt').value=p.date;$('#tm').value=p.time||'';$('#pl').value=p.tz?p.place:'';
+ $('#la').value=p.tz?'':p.lat;$('#lo').value=p.tz?'':p.lon;$('#of').value=p.tz?'':(p.off??'');$('#man').open=!p.tz;$('#saveBtn').textContent=editing?'Update profile':'Save profile';draw()}
+const dateStr=p=>{const[y,m,d]=p.date.split('-').map(Number);return new Date(Date.UTC(y,m-1,d)).toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric',timeZone:'UTC'})};
+function posTable(ch){return`<thead><tr><th></th><th>Planet</th><th>Sign</th><th class="n">Degree</th><th class="n">House</th></tr></thead><tbody>`+ch.pl.map(P=>`<tr><td class="g" style="font-size:18px">${G(P.g)}</td><td>${P.n}${P.retro?' ℞':''}</td><td><span class="g">${G(SIGNS[P.sg].g)}</span> ${SIGNS[P.sg].n}</td><td class="n">${fmt(P.deg)}</td><td class="n">${P.h}</td></tr>`).join('')+(ch.asc!=null?`<tr><td style="font-size:12px;font-weight:600">AC</td><td>Ascendant</td><td><span class="g">${G(SIGNS[Math.floor(ch.asc/30)].g)}</span> ${SIGNS[Math.floor(ch.asc/30)].n}</td><td class="n">${fmt(ch.asc%30)}</td><td class="n">—</td></tr>`:'')+`</tbody>`}
+function draw(){const p=readForm();if(p.err){$('#msg').textContent=p.err;return}$('#msg').textContent='';
+ try{cur=chart(p)}catch(e){$('#msg').textContent='Could not calculate that date — please check it.';return}
+ $('#ctitle').textContent=`${p.name} · Sun in ${SIGNS[cur.sunSign].n}`;$('#csub').textContent=`${dateStr(p)} · ${p.time||'time unknown, noon used'} · ${p.place}`;
+ $('#wheel').innerHTML=wheel(cur,null,SCREEN);$('#pos').innerHTML=posTable(cur);const[l,r]=reading(cur);$('#reading').innerHTML=`<div>${l}</div><div>${r}</div>`;fillSelects();drawCompare();drawForecast()}
+const todayIso=()=>isoDay(new Date());
+function drawForecast(){if(!cur)return;const fd=$('#fDate');if(!/^\d{4}-\d{2}-\d{2}$/.test(fd.value))fd.value=todayIso();const ds=fd.value,f=forecast(cur,ds),t=todayIso();
+ const[y,m,d]=ds.split('-').map(Number);$('#fTitle').textContent=ds===t?'Today’s forecast':'Forecast for '+new Date(y,m-1,d).toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long'});
+ $('#fSub').textContent=`For ${cur.p.name} · ${new Date(y,m-1,d).toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short',year:'numeric'})}`;
+ $('#week').innerHTML=[-3,-2,-1,0,1,2,3].map(n=>{const s=shiftDay(ds,n),[yy,mm,dd]=s.split('-').map(Number),dt=new Date(yy,mm-1,dd,12),T=skyAt(dt.getTime(),cur.sunSign),[lab,c]=mood(dayScore(transits(cur,T)));
+  return`<button type="button" class="day${n===0?' on':''}${s===t?' today':''}" data-d="${s}" aria-label="${dt.toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long'})}: ${lab}"><span>${dt.toLocaleDateString('en-GB',{weekday:'short'})}</span><b>${dd}</b><span class="g">${G(SIGNS[T[1].sg].g)}</span><i style="background:${c}"></i></button>`}).join('');
+ $('#tw').innerHTML=wheel(cur,{pl:f.T},SCREEN,f.all);$('#fText').innerHTML=f.html}
+$('#fDate').addEventListener('change',drawForecast);
+$('#fPrev').onclick=()=>{$('#fDate').value=shiftDay($('#fDate').value||todayIso(),-1);drawForecast()};
+$('#fNext').onclick=()=>{$('#fDate').value=shiftDay($('#fDate').value||todayIso(),1);drawForecast()};
+$('#fToday').onclick=()=>{$('#fDate').value=todayIso();drawForecast()};
+$('#week').addEventListener('click',ev=>{const b=ev.target.closest('button');if(b){$('#fDate').value=b.dataset.d;drawForecast()}});
+function renderSaved(){const it=store.items;
+ $('#cards').innerHTML=it.length?`<div class="cards">`+it.map(p=>{let s='';try{s=SIGNS[chart(p).sunSign]}catch(e){}return`<div class="card"><h4>${esc(p.name)}</h4><p><span class="g">${s?G(s.g):''}</span> ${s?s.n+' · ':''}${esc(dateStr(p))}${p.time?' · '+esc(p.time):''}<br>${esc(p.place)}</p><div class="btns"><button data-a="open" data-id="${esc(p.id)}">Open</button><button data-a="cmp" data-id="${esc(p.id)}">Compare</button><button data-a="del" data-id="${esc(p.id)}">Delete</button></div></div>`}).join('')+`</div>`:`<div class="empty">No saved profiles yet. Fill in the form above and choose Save profile — the comparison below uses sample people until you do.</div>`;
+ fillSelects();drawCompare()}
+const allProfiles=()=>[...store.items,...SAMPLES];
+function fillLoader(){const it=store.items;$('#ld').innerHTML=`<option value="">${it.length?`Choose one of ${it.length} saved…`:'No saved profiles yet'}</option>`+(it.length?`<optgroup label="Saved">${it.map(p=>`<option value="${esc(p.id)}">${esc(p.name)} · ${esc(dateStr(p))}</option>`).join('')}</optgroup>`:'')+`<optgroup label="Samples">${SAMPLES.map(p=>`<option value="${esc(p.id)}">${esc(p.name)}</option>`).join('')}</optgroup>`;$('#ld').value=editing&&it.some(p=>p.id===editing)?editing:''}
+function fillSelects(){fillLoader();const a=$('#ca'),b=$('#cb'),va=a.value||'current',vb=b.value||(store.items[0]?.id||'sample-b');
+ const opts=`<option value="current">Current chart${cur?' — '+esc(cur.p.name):''}</option>`+allProfiles().map(p=>`<option value="${esc(p.id)}">${esc(p.name)}</option>`).join('');
+ a.innerHTML=opts;b.innerHTML=opts;const has=v=>v==='current'||allProfiles().some(p=>p.id===v);a.value=has(va)?va:'current';b.value=has(vb)?vb:'sample-b'}
+const getP=v=>v==='current'?(cur&&cur.p):allProfiles().find(p=>p.id===v);
+let cmpData=null;
+function drawCompare(){const pa=getP($('#ca').value),pb=getP($('#cb').value);if(!pa||!pb)return;
+ const A=chart(pa),B=chart(pb),c=compare(A,B);cmpData={A,B,c};$('#bi').innerHTML=wheel(A,B,SCREEN);$('#lgA').textContent=pa.name;$('#lgB').textContent=pb.name;$('#cmpHead').innerHTML=c.head;$('#cmpText').innerHTML=c.x}
+
+/* ---------- printouts ---------- */
+function sheet(title,sub,svg,body){return`<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><title>${esc(title)}</title><link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Jost:wght@400;500;600&family=Noto+Sans+Symbols&family=Noto+Sans+Symbols+2&display=swap" rel="stylesheet"><style>@page{size:A4;margin:14mm}body{font:10.5pt/1.5 Jost,sans-serif;color:#1d2a2c;max-width:182mm;margin:10mm auto}h1,h3{font-family:'Cormorant Garamond',serif;font-weight:600;line-height:1.1;margin:0}h1{font-size:30pt}h3{font-size:15pt;margin:12px 0 3px;break-after:avoid}.sub{color:#5d6866;margin:2px 0 0}.fig{width:150mm;height:150mm;margin:6mm auto}.fig svg{width:100%;height:100%}.g{font-family:'Noto Sans Symbols','Noto Sans Symbols 2','Segoe UI Symbol',sans-serif}table{width:100%;border-collapse:collapse;margin:4mm 0;font-size:9.5pt}th,td{padding:3px 6px;border-bottom:1px solid #ddd6c8;text-align:left}.n{text-align:right}.cols{columns:2;column-gap:9mm}.cols li,.cols p{break-inside:avoid}.plist{list-style:none;padding:0;margin:0}.plist li{padding:4px 0;border-bottom:1px solid #eee7da}.plist span{color:#5d6866}.lede{font-family:'Cormorant Garamond',serif;font-size:13pt}.bar{display:grid;grid-template-columns:6em 1fr 2.5em;gap:8px;align-items:center;font-size:9pt}.bar i{height:6px;background:#eee7da;border-radius:6px;display:block}.bar i b{display:block;height:100%;border-radius:6px}.big{font-family:'Cormorant Garamond',serif;font-size:34pt;color:#c2412a;margin:0}footer{margin-top:8mm;color:#5d6866;font-size:8.5pt;border-top:1px solid #ddd6c8;padding-top:3mm}button{font:500 11pt Jost,sans-serif;padding:8px 18px;border-radius:99px;border:1px solid #1d2a2c;background:#fff;cursor:pointer;float:right}@media print{button{display:none}}</style></head><body><button onclick="window.print()">Print</button><h1>${esc(title)}</h1><p class="sub">${esc(sub)}</p><div class="fig">${svg}</div>${body}<footer>Cast with Sunwheel · positions calculated from orbital elements, accurate to a few arc-minutes · for reflection and fun.</footer></body></html>`}
+async function saveFile(name,data){try{const dl=await claude.use('downloads');if(!dl)throw{code:'unavailable'};await dl.save({filename:name,data});toast('Saved '+name)}catch(e){if(e&&e.code==='declined')return;toast("Downloads aren't available in this view — open Sunwheel in a browser on claude.ai to save the printout.")}}
+const slug=s=>String(s||'chart').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'')||'chart';
+$('#printBtn').onclick=()=>{if(!cur)return;const p=cur.p,[l,r]=reading(cur,PRINT);saveFile(slug(p.name)+'-sun-chart.html',sheet(`${p.name} · Sun in ${SIGNS[cur.sunSign].n}`,`${dateStr(p)} · ${p.time||'time unknown, noon used'} · ${p.place}`,wheel(cur,null,PRINT),`<table>${posTable(cur)}</table><div class="cols">${l}${r}</div>`))};
+$('#svgBtn').onclick=()=>{if(cur)saveFile(slug(cur.p.name)+'-sun-chart.svg',wheel(cur,null,PRINT))};
+$('#cmpPrint').onclick=()=>{if(!cmpData)return;const{A,B,c}=cmpData;saveFile(slug(A.p.name)+'-and-'+slug(B.p.name)+'.html',sheet(`${A.p.name} & ${B.p.name}`,`${A.p.name} inside (${SIGNS[A.sunSign].n} Sun) · ${B.p.name} outside (${SIGNS[B.sunSign].n} Sun)`,wheel(A,B,PRINT),`<div class="cols">${c.head.replace(/var\(--ver\)/g,'#2f8a78').replace(/var\(--acc\)/g,'#c2412a').replace(/var\(--mute\)/g,'#5d6866')}${c.x}</div>`))};
+$('#copyBtn').onclick=async()=>{try{await navigator.clipboard.writeText($('#ctitle').textContent+'\n\n'+$('#reading').innerText);toast('Reading copied')}catch(e){toast('Copy was blocked here — select the text instead.')}};
+
+/* ---------- events ---------- */
+let tmr;$('#f').addEventListener('input',()=>{clearTimeout(tmr);tmr=setTimeout(draw,250)});
+$('#f').addEventListener('submit',async ev=>{ev.preventDefault();const p=readForm();if(p.err){$('#msg').textContent=p.err;return}p.id=editing||'p'+Date.now().toString(36);editing=p.id;$('#saveBtn').textContent='Update profile';await store.save(p);draw();toast(`Saved ${p.name}`)});
+$('#newBtn').onclick=()=>{editing=null;$('#ld').value='';['#nm','#dt','#tm','#pl','#la','#lo','#of'].forEach(s=>$(s).value='');$('#saveBtn').textContent='Save profile';$('#msg').textContent='Enter a date and place to cast a new chart.';$('#nm').focus()};
+$('#cards').addEventListener('click',ev=>{const b=ev.target.closest('button');if(!b)return;const id=b.dataset.id,p=store.items.find(x=>x.id===id);if(!p)return;
+ if(b.dataset.a==='open'){fillForm(p);$('#chart').scrollIntoView({behavior:'smooth'})}
+ else if(b.dataset.a==='cmp'){$('#cb').value=id;if($('#ca').value===id)$('#ca').value='current';drawCompare();$('#compare').scrollIntoView({behavior:'smooth'})}
+ else if(b.dataset.a==='del'){if(b.dataset.sure){store.del(id);toast(`Deleted ${p.name}`)}else{b.dataset.sure=1;b.textContent='Sure?';setTimeout(()=>{b.textContent='Delete';delete b.dataset.sure},3000)}}});
+$('#ld').addEventListener('change',ev=>{ev.stopPropagation();const p=allProfiles().find(x=>x.id===ev.target.value);if(p){fillForm(p);toast(`Loaded ${p.name}`)}});
+$('#ld').addEventListener('input',ev=>ev.stopPropagation());
+$('#ca').onchange=drawCompare;$('#cb').onchange=drawCompare;
+
+fillForm(SAMPLES[0]);store.init();
+}
+</script>
+</body>
+</html>
