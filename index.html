@@ -58,6 +58,8 @@ table{width:100%;border-collapse:collapse;font-size:15px}th,td{padding:7px 8px;b
 .week{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px;margin-top:14px;max-width:760px}
 .day{border-radius:12px;min-height:78px;padding:8px 2px;display:grid;justify-items:center;align-content:center;gap:1px;font-size:13px;line-height:1.3}.day b{font-size:17px;font-weight:600}.day i{width:9px;height:9px;border-radius:50%;margin-top:3px}.day.on{border-color:var(--acc);background:var(--card)}.day.today b{color:var(--acc)}
 .chip{display:inline-block;border:1px solid var(--line);border-radius:999px;padding:3px 12px;font-size:14px;margin:0 6px 6px 0}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin:16px 0 12px}.chips button{min-height:38px;padding:0 12px;font-size:14px;display:inline-flex;gap:6px;align-items:center}.chips button[aria-pressed=false]{opacity:.4}.chips .dot{width:10px;height:10px;border-radius:50%}
+.mapwrap{overflow-x:auto;border-radius:12px;border:1px solid var(--line)}.map{min-width:720px;aspect-ratio:1000/389;background:#0d2227}.map svg{display:block;width:100%;height:100%;cursor:crosshair}
 #toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 18px;border-radius:999px;font-size:15px;opacity:0;pointer-events:none;transition:opacity .25s;max-width:92vw;text-align:center}#toast.on{opacity:1}
 footer{color:var(--mute);font-size:13px;border-top:1px solid var(--line)}
 @media(max-width:900px){.lab,.cmp,.reading{grid-template-columns:minmax(0,1fr)}.stage{order:-1}}
@@ -70,7 +72,7 @@ footer{color:var(--mute);font-size:13px;border-top:1px solid var(--line)}
   <div class="brand"><span class="g" style="font-size:22px">☉&#xFE0E;</span> Sunwheel</div>
   <h1>The sky on the day you were born</h1>
   <p class="sub">Enter a birth date and place to cast a sun chart — the Sun's sign becomes the first house, so it works without a birth time. Add a time if you know it for an exact Moon and your rising sign.</p>
-  <nav class="scroll"><a href="#chart">Chart</a><a href="#reading-sec">Reading</a><a href="#forecast">Daily forecast</a><a href="#saved">Saved profiles</a><a href="#compare">Compare two charts</a></nav>
+  <nav class="scroll"><a href="#chart">Chart</a><a href="#reading-sec">Reading</a><a href="#forecast">Daily forecast</a><a href="#acg">Astrocartography</a><a href="#saved">Saved profiles</a><a href="#compare">Compare two charts</a></nav>
 </div></header>
 
 <main>
@@ -121,6 +123,20 @@ footer{color:var(--mute);font-size:13px;border-top:1px solid var(--line)}
       <div class="legend"><span><b style="background:var(--ink)"></b>Birth chart (inner)</span><span><b style="background:var(--acc)"></b>Sky that day (outer)</span><span><b style="background:var(--ver)"></b>easy</span><span><b style="background:var(--acc)"></b>tense</span></div>
     </div>
     <div id="fText"></div>
+  </div>
+</div></section>
+
+<section class="band" id="acg" style="border-top:1px solid var(--line)"><div class="wrap">
+  <div class="ctitle"><h2>Astrocartography</h2><p id="acgSub"></p></div>
+  <p class="sub" style="margin-top:4px">Where on Earth each planet was rising (AC), setting (DC), overhead (MC) or directly underfoot (IC) at the moment of birth. Living or travelling near a line is said to bring out that planet's themes.</p>
+  <div class="empty" id="acgWarn" hidden>Astrocartography needs a birth time — the lines move about 15° of longitude for every hour. Add a time in the form above to draw your map.</div>
+  <div class="chips" id="acgChips"></div>
+  <div class="scroll mapwrap"><div class="map" id="map"></div></div>
+  <p class="hint" id="acgNote">Tap the map, or choose a city, to see which lines run nearby.</p>
+  <div class="btns" style="margin-top:10px"><button type="button" id="acgSvg">Map image (SVG)</button></div>
+  <div class="cmp">
+    <div><label for="acgCity">Check a place</label><select id="acgCity"></select><div id="acgPlace"></div></div>
+    <div id="acgBest"></div>
   </div>
 </div></section>
 
@@ -219,10 +235,10 @@ function positions(d){
   saturn:0.812*S(2*Mj-5*Mt-67.6)-0.229*C(2*Mj-4*Mt-2)+0.119*S(Mj-2*Mt-3)+0.046*S(2*Mj-6*Mt-69)+0.014*S(Mj-3*Mt+32),
   uranus:0.04*S(Mt-2*Mu+6)+0.035*S(Mt-3*Mu+33)-0.015*S(Mj-Mu+20)};
  const xs=sun.r*C(sun.lon),ys=sun.r*S(sun.lon);
- const geo=h=>rev(A2(h.r*S(h.lon)*C(h.lat)+ys,h.r*C(h.lon)*C(h.lat)+xs));
- for(const k in el){const h=orbit(...el[k]);h.lon+=pert[k]||0;out[k]=geo(h)}
+ out.lat={sun:0,moon:mo.lat};let gk='';const geo=h=>{const x=h.r*C(h.lon)*C(h.lat)+xs,y=h.r*S(h.lon)*C(h.lat)+ys;out.lat[gk]=A2(h.r*S(h.lat),Math.hypot(x,y));return rev(A2(y,x))};
+ for(const k in el){const h=orbit(...el[k]);h.lon+=pert[k]||0;gk=k;out[k]=geo(h)}
  const Sp=50.03+0.033459652*d,P=238.95+0.003968789*d;
- out.pluto=geo({lon:238.9508+0.00400703*d-19.799*S(P)+19.848*C(P)+0.897*S(2*P)-4.956*C(2*P)+0.61*S(3*P)+1.211*C(3*P)-0.341*S(4*P)-0.19*C(4*P)+0.128*S(5*P)-0.034*C(5*P)-0.038*S(6*P)+0.031*C(6*P)+0.02*S(Sp-P)-0.01*C(Sp-P)+3.82394e-5*d,
+ gk='pluto';out.pluto=geo({lon:238.9508+0.00400703*d-19.799*S(P)+19.848*C(P)+0.897*S(2*P)-4.956*C(2*P)+0.61*S(3*P)+1.211*C(3*P)-0.341*S(4*P)-0.19*C(4*P)+0.128*S(5*P)-0.034*C(5*P)-0.038*S(6*P)+0.031*C(6*P)+0.02*S(Sp-P)-0.01*C(Sp-P)+3.82394e-5*d,
   lat:-3.9082-5.453*S(P)-14.975*C(P)+3.527*S(2*P)+1.673*C(2*P)-1.051*S(3*P)+0.328*C(3*P)+0.179*S(4*P)-0.292*C(4*P)+0.019*S(5*P)+0.1*C(5*P)-0.031*S(6*P)-0.026*C(6*P)+0.011*C(Sp-P),
   r:40.72+6.68*S(P)+6.9*C(P)-1.18*S(2*P)-0.03*C(2*P)+0.15*S(3*P)-0.14*C(3*P)});
  return out}
@@ -231,9 +247,9 @@ function chart(p){
  const[y,m,dd]=p.date.split('-').map(Number),t=p.time?p.time.split(':').map(Number):[12,0],g=Date.UTC(y,m-1,dd,t[0],t[1]);let ms;
  if(p.tz){let o=tzOff(p.tz,g);ms=g-o*6e4;o=tzOff(p.tz,ms);ms=g-o*6e4}else ms=g-(Number(p.off)||0)*36e5;
  const jd=ms/864e5+2440587.5,d=jd-2451543.5,now=positions(d),nx=positions(d+1),sunSign=Math.floor(now.sun/30);
- const pl=PL.map(P=>{const lon=now[P.k],sg=Math.floor(lon/30),mv=rev(nx[P.k]-lon+180)-180;return{...P,lon,sg,deg:lon%30,h:(sg-sunSign+12)%12+1,retro:mv<0}});
+ const pl=PL.map(P=>{const lon=now[P.k],sg=Math.floor(lon/30),mv=rev(nx[P.k]-lon+180)-180;return{...P,lon,lat:now.lat[P.k]||0,sg,deg:lon%30,h:(sg-sunSign+12)%12+1,retro:mv<0}});
  let asc=null;if(p.time){const ecl=23.4393-3.563e-7*d,lst=rev(280.46061837+360.98564736629*(jd-2451545)+Number(p.lon));asc=rev(A2(C(lst),-(S(lst)*C(ecl)+Math.tan(p.lat*R)*S(ecl))))}
- return{p,pl,sunSign,asc}}
+ return{p,pl,sunSign,asc,jd,d}}
 const angd=(a,b)=>{const x=Math.abs(a-b)%360;return x>180?360-x:x};
 function aspects(L1,L2,f=1){const r=[],same=L1===L2;L1.forEach((a,i)=>L2.forEach((b,j)=>{if(same&&j<=i)return;if(a.gen&&b.gen)return;const s=angd(a.lon,b.lon);for(const x of ASP){const o=Math.abs(s-x.a);if(o<=x.o*f){r.push({a,b,x,o,w:1-o/(x.o*f)});break}}}));return r.sort((u,v)=>v.w-u.w)}
 
@@ -317,7 +333,7 @@ const NW={sun:1.5,moon:1.4,mercury:1,venus:1.1,mars:1.1,jupiter:.8,saturn:.8,ura
 const LAST={sun:'for a day or two',moon:'for a few hours',mercury:'for a day or two',venus:'for a day or two',mars:'for a few days',jupiter:'a theme for weeks',saturn:'a theme for weeks',uranus:'a backdrop for months',neptune:'a backdrop for months',pluto:'a backdrop for months'};
 const BEST=['fresh starts and putting yourself forward','budgets, shopping and small treats','errands, messages and short trips','home, family and rest','dates, hobbies and creative play','chores, exercise and health admin','meetings, partners and negotiating','deep talks, shared money and letting go','learning, travel plans and big ideas','career moves and being visible','friends, networking and future plans','rest, reflection and finishing things'];
 const jdd=ms=>ms/864e5+2440587.5-2451543.5;
-function skyAt(ms,sunSign){const d=jdd(ms),now=positions(d),nx=positions(d+1);return PL.map(P=>{const lon=now[P.k],sg=Math.floor(lon/30);return{...P,lon,sg,deg:lon%30,h:(sg-sunSign+12)%12+1,retro:rev(nx[P.k]-lon+180)-180<0}})}
+function skyAt(ms,sunSign){const d=jdd(ms),now=positions(d),nx=positions(d+1);return PL.map(P=>{const lon=now[P.k],sg=Math.floor(lon/30);return{...P,lon,lat:now.lat[P.k]||0,sg,deg:lon%30,h:(sg-sunSign+12)%12+1,retro:rev(nx[P.k]-lon+180)-180<0}})}
 function transits(N,T){const r=[];for(const t of T)for(const n of N.pl){const s=angd(t.lon,n.lon),lim=TORB[t.k];for(const x of ASP){const o=Math.abs(s-x.a);if(o<=lim){r.push({a:t,b:n,t,n,x,o,w:(1-o/lim)*TW[t.k]*NW[n.k]});break}}}return r.sort((u,v)=>v.w-u.w)}
 function dayScore(tr){let s=0;for(const a of tr)s+=a.x.k==='s'?a.w:a.x.k==='h'?-a.w:(['saturn','mars','pluto'].includes(a.t.k)?-.4:.6)*a.w;return s}
 const mood=s=>s>1.2?['Flowing','var(--ver)']:s>.2?['Bright','var(--ver)']:s>-.4?['Mixed','var(--mute)']:s>-1.2?['Testing','var(--acc)']:['Demanding','var(--acc)'];
@@ -375,7 +391,7 @@ function posTable(ch){return`<thead><tr><th></th><th>Planet</th><th>Sign</th><th
 function draw(){const p=readForm();if(p.err){$('#msg').textContent=p.err;return}$('#msg').textContent='';
  try{cur=chart(p)}catch(e){$('#msg').textContent='Could not calculate that date — please check it.';return}
  $('#ctitle').textContent=`${p.name} · Sun in ${SIGNS[cur.sunSign].n}`;$('#csub').textContent=`${dateStr(p)} · ${p.time||'time unknown, noon used'} · ${p.place}`;
- $('#wheel').innerHTML=wheel(cur,null,SCREEN);$('#pos').innerHTML=posTable(cur);const[l,r]=reading(cur);$('#reading').innerHTML=`<div>${l}</div><div>${r}</div>`;fillSelects();drawCompare();drawForecast()}
+ $('#wheel').innerHTML=wheel(cur,null,SCREEN);$('#pos').innerHTML=posTable(cur);const[l,r]=reading(cur);$('#reading').innerHTML=`<div>${l}</div><div>${r}</div>`;fillSelects();drawCompare();drawForecast();acgPick=null;drawAcg()}
 const todayIso=()=>isoDay(new Date());
 function drawForecast(){if(!cur)return;const fd=$('#fDate');if(!/^\d{4}-\d{2}-\d{2}$/.test(fd.value))fd.value=todayIso();const ds=fd.value,f=forecast(cur,ds),t=todayIso();
  const[y,m,d]=ds.split('-').map(Number);$('#fTitle').textContent=ds===t?'Today’s forecast':'Forecast for '+new Date(y,m-1,d).toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long'});
@@ -409,6 +425,66 @@ $('#printBtn').onclick=()=>{if(!cur)return;const p=cur.p,[l,r]=reading(cur,PRINT
 $('#svgBtn').onclick=()=>{if(cur)saveFile(slug(cur.p.name)+'-sun-chart.svg',wheel(cur,null,PRINT))};
 $('#cmpPrint').onclick=()=>{if(!cmpData)return;const{A,B,c}=cmpData;saveFile(slug(A.p.name)+'-and-'+slug(B.p.name)+'.html',sheet(`${A.p.name} & ${B.p.name}`,`${A.p.name} inside (${SIGNS[A.sunSign].n} Sun) · ${B.p.name} outside (${SIGNS[B.sunSign].n} Sun)`,wheel(A,B,PRINT),`<div class="cols">${c.head.replace(/var\(--ver\)/g,'#2f8a78').replace(/var\(--acc\)/g,'#c2412a').replace(/var\(--mute\)/g,'#5d6866')}${c.x}</div>`))};
 $('#copyBtn').onclick=async()=>{try{await navigator.clipboard.writeText($('#ctitle').textContent+'\n\n'+$('#reading').innerText);toast('Reading copied')}catch(e){toast('Copy was blocked here — select the text instead.')}};
+
+/* ---------- astrocartography ---------- */
+const PCOL={sun:'#f6c453',moon:'#e9e4d8',mercury:'#a9cbe0',venus:'#f29bb3',mars:'#ef6a4c',jupiter:'#b8a2f2',saturn:'#cfa86c',uranus:'#5fd0d6',neptune:'#7193f2',pluto:'#a3b2ac'};
+const PLACE={sun:'confidence, recognition and vitality',moon:'emotional belonging, family and nurture',mercury:'learning, writing, trade and networking',venus:'love, beauty, pleasure and ease',mars:'energy, drive and competition — and some conflict',jupiter:'luck, growth, generosity and opportunity',saturn:'hard work, structure and lessons — rewarding but heavy',uranus:'sudden change, freedom and the unexpected',neptune:'inspiration and spirituality, with a risk of confusion',pluto:'intensity, power and deep transformation'};
+const ANG={MC:'career, reputation and public life',IC:'home, roots and private life',AC:'identity, health and how you come across',DC:'partnerships and the people you meet'};
+const VAL={sun:1,moon:.6,mercury:.5,venus:1.2,mars:-.6,jupiter:1.2,saturn:-.8,uranus:-.2,neptune:-.2,pluto:-.6};
+const MW=1000,LAT1=80,LAT0=-60,MH=(LAT1-LAT0)/360*MW,mx=lo=>(lo+180)/360*MW,my=la=>(LAT1-la)/360*MW,wrap=x=>rev(x+180)-180;
+let LAND='',acgPick=null;const acgOn=new Set(PL.map(p=>p.k));
+function eqc(lon,lat,ecl){const x=C(lat)*C(lon),y=C(lat)*S(lon)*C(ecl)-S(lat)*S(ecl),z=C(lat)*S(lon)*S(ecl)+S(lat)*C(ecl);return{ra:rev(A2(y,x)),dec:Math.asin(Math.max(-1,Math.min(1,z)))/R}}
+function acgLines(ch){const ecl=23.4393-3.563e-7*ch.d,gmst=rev(280.46061837+360.98564736629*(ch.jd-2451545));
+ return ch.pl.map(P=>{const{ra,dec}=eqc(P.lon,P.lat,ecl),mc=wrap(ra-gmst),asc=[],dsc=[];
+  for(let la=LAT1+5;la>=LAT0-5;la-=.5){const c=-Math.tan(la*R)*Math.tan(dec*R);if(Math.abs(c)>=1)continue;const h=Math.acos(c)/R;asc.push([wrap(ra-h-gmst),la]);dsc.push([wrap(ra+h-gmst),la])}
+  return{P,ra,dec,gmst,mc,ic:wrap(mc+180),asc,dsc}})}
+function lineLon(L,t,la){if(t==='MC')return L.mc;if(t==='IC')return L.ic;const c=-Math.tan(la*R)*Math.tan(L.dec*R);if(Math.abs(c)>=1)return null;const h=Math.acos(c)/R;return wrap(L.ra+(t==='AC'?-h:h)-L.gmst)}
+function nearLines(lines,la,lo,max=800){const r=[];for(const L of lines)for(const t of['MC','IC','AC','DC']){const x=lineLon(L,t,la);if(x==null)continue;const km=Math.abs(wrap(x-lo))*Math.cos(la*R)*111.2;if(km<=max)r.push({L,t,km})}return r.sort((a,b)=>a.km-b.km)}
+function topoLand(t){const[sx,sy]=t.transform.scale,[tx,ty]=t.transform.translate;
+ const arcs=t.arcs.map(a=>{let x=0,y=0;return a.map(q=>{x+=q[0];y+=q[1];return[x*sx+tx,y*sy+ty]})});
+ const ring=ids=>{const pts=[];ids.forEach((i,k)=>{let a=i<0?arcs[~i].slice().reverse():arcs[i];if(k)a=a.slice(1);pts.push(...a)});return pts};
+ let d='';const add=g=>{if(!g)return;if(g.type==='Polygon')g.arcs.forEach(r=>d+=path(ring(r)));else if(g.type==='MultiPolygon')g.arcs.forEach(p=>p.forEach(r=>d+=path(ring(r))));else if(g.type==='GeometryCollection')g.geometries.forEach(add)};
+ const path=pts=>'M'+pts.map(q=>mx(q[0]).toFixed(1)+' '+my(q[1]).toFixed(1)).join('L')+'Z';
+ Object.values(t.objects).forEach(add);return d}
+function polyl(pts,col,dash){let segs=[],cur2=[];pts.forEach((q,i)=>{if(i&&Math.abs(q[0]-pts[i-1][0])>180){segs.push(cur2);cur2=[]}cur2.push(q)});segs.push(cur2);
+ return segs.filter(s=>s.length>1).map(s=>`<polyline points="${s.map(q=>mx(q[0]).toFixed(1)+','+my(q[1]).toFixed(1)).join(' ')}" fill="none" stroke="${col}" stroke-width="1.8" ${dash}/>`).join('')}
+function acgSVG(ch){const p=ch.p,lines=ch.asc!=null?acgLines(ch):[];
+ let s=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${MW} ${MH.toFixed(1)}" font-family="Jost,sans-serif"><rect width="${MW}" height="${MH.toFixed(1)}" fill="#0d2227"/>`;
+ for(let lo=-150;lo<180;lo+=30)s+=`<line x1="${mx(lo)}" y1="0" x2="${mx(lo)}" y2="${MH}" stroke="#1d3a40"/>`;
+ for(let la=-60;la<=60;la+=30)s+=`<line x1="0" y1="${my(la)}" x2="${MW}" y2="${my(la)}" stroke="${la?'#1d3a40':'#2c4a50'}"/>`;
+ s+=LAND?`<path d="${LAND}" fill="#1f3f45" stroke="#3b6168" stroke-width=".6" fill-rule="evenodd"/>`:CITIES.map(c=>`<circle cx="${mx(c.lon).toFixed(1)}" cy="${my(c.lat).toFixed(1)}" r="1.6" fill="#3b6168"/>`).join('');
+ const lab=[],halo='paint-order="stroke" stroke="#0d2227" stroke-width="3"';
+ for(const L of lines){if(!acgOn.has(L.P.k))continue;const col=PCOL[L.P.k];
+  s+=`<line x1="${mx(L.mc).toFixed(1)}" y1="0" x2="${mx(L.mc).toFixed(1)}" y2="${MH}" stroke="${col}" stroke-width="2"/><line x1="${mx(L.ic).toFixed(1)}" y1="0" x2="${mx(L.ic).toFixed(1)}" y2="${MH}" stroke="${col}" stroke-width="1.6" stroke-dasharray="6 5"/>`;
+  s+=polyl(L.asc,col,'')+polyl(L.dsc,col,'stroke-dasharray="2 4"');
+  lab.push([mx(L.mc),13,L.P,'MC'],[mx(L.ic),MH-10,L.P,'IC']);
+  for(const[t,arr]of[['AC',L.asc],['DC',L.dsc]]){const q=arr.find(q=>Math.abs(q[1]-(t==='AC'?20:-20))<.3);if(q)lab.push([mx(q[0]),my(q[1]),L.P,t])}}
+ lab.sort((a,b)=>a[0]-b[0]);const used=[];
+ for(const[x,y,P,t]of lab){let yy=y;while(used.some(u=>Math.abs(u[0]-x)<34&&Math.abs(u[1]-yy)<14))yy+=y>MH/2?-14:14;used.push([x,yy]);
+  s+=`<text x="${(Math.min(MW-24,Math.max(24,x))).toFixed(1)}" y="${yy.toFixed(1)}" text-anchor="middle" dominant-baseline="central" font-size="12" fill="${PCOL[P.k]}" ${halo}><tspan font-family="'Noto Sans Symbols','Noto Sans Symbols 2','Segoe UI Symbol',sans-serif">${G(P.g)}</tspan>${t}</text>`}
+ const bx=mx(p.lon),by=my(p.lat);s+=`<circle cx="${bx.toFixed(1)}" cy="${by.toFixed(1)}" r="5" fill="none" stroke="#efe7d6" stroke-width="2"/><circle cx="${bx.toFixed(1)}" cy="${by.toFixed(1)}" r="1.8" fill="#efe7d6"/>`;
+ if(acgPick){const px=mx(acgPick.lon),py=my(acgPick.lat);s+=`<path d="M${px} ${py-12}L${px+5} ${py-3}L${px} ${py}L${px-5} ${py-3}Z" fill="#ef6a4c" stroke="#0d2227"/>`}
+ return s+'</svg>'}
+function placeHTML(lines,la,lo,name){const nl=nearLines(lines,la,lo);
+ return`<h3>${esc(name)}</h3>`+(nl.length?`<ul class="plist">`+nl.slice(0,6).map(n=>`<li><b><span class="g" style="color:${PCOL[n.L.P.k]}">${G(n.L.P.g)}</span> ${n.L.P.n} ${n.t} line</b> <span>about ${Math.round(n.km/10)*10} km away · ${n.km<300?'strong':n.km<600?'noticeable':'mild'}</span><br>${cap(PLACE[n.L.P.k])}, felt through ${ANG[n.t]}.</li>`).join('')+`</ul>`:`<p>No planetary lines within 800 km — a neutral place where your own birth chart speaks for itself.</p>`)}
+function drawAcg(){if(!cur)return;const ch=cur,has=ch.asc!=null,lines=has?acgLines(ch):[];
+ $('#acgWarn').hidden=has;$('#acgSub').textContent=`For ${ch.p.name} · born in ${ch.p.place}`;
+ $('#acgChips').innerHTML=has?PL.map(p=>`<button type="button" data-k="${p.k}" aria-pressed="${acgOn.has(p.k)}"><span class="dot" style="background:${PCOL[p.k]}"></span><span class="g">${G(p.g)}</span>${p.n}</button>`).join('')+`<span class="hint" style="margin:0 0 0 6px;align-self:center">Solid: MC and AC · dashed: IC · dotted: DC</span>`:'';
+ $('#map').innerHTML=acgSVG(ch);
+ const sel=$('#acgCity'),v=sel.value;if(!sel.options.length)sel.innerHTML=`<option value="">Choose a city…</option>`+CITIES.map((c,i)=>`<option value="${i}">${esc(c.n)}</option>`).join('');
+ if(!has){$('#acgPlace').innerHTML='';$('#acgBest').innerHTML='';return}
+ if(acgPick)$('#acgPlace').innerHTML=placeHTML(lines,acgPick.lat,acgPick.lon,acgPick.name);else $('#acgPlace').innerHTML=placeHTML(lines,ch.p.lat,ch.p.lon,'Your birthplace: '+ch.p.place);
+ const sc=CITIES.map(c=>{const nl=nearLines(lines,c.lat,c.lon,600);let v2=0;nl.forEach(n=>v2+=VAL[n.L.P.k]*(1-n.km/600));return{c,v:v2,nl}});
+ const good=sc.filter(x=>x.v>.15).sort((a,b)=>b.v-a.v).slice(0,6),hard=sc.filter(x=>x.v<-.15).sort((a,b)=>a.v-b.v).slice(0,4);
+ const li=x=>`<li><b>${esc(x.c.n)}</b><br><span>${x.nl.slice(0,3).map(n=>`<span class="g" style="color:${PCOL[n.L.P.k]}">${G(n.L.P.g)}</span> ${n.L.P.n} ${n.t}`).join(' · ')}</span></li>`;
+ $('#acgBest').innerHTML=`<h3>Places that may suit you</h3><p class="hint" style="margin-top:0">From the city list, ranked by nearby Venus, Jupiter and Sun lines.</p><ul class="plist">${good.map(li).join('')||'<li>None of the listed cities sit close to your Venus, Jupiter or Sun lines.</li>'}</ul><h3>Handle with care</h3><p class="hint" style="margin-top:0">Saturn, Mars and Pluto lines — demanding rather than bad, good for hard work.</p><ul class="plist">${hard.map(li).join('')||'<li>No listed cities sit on your more demanding lines.</li>'}</ul>`}
+import('https://cdn.jsdelivr.net/npm/world-atlas@2.0.2/land-110m.json/+esm').then(m=>{LAND=topoLand(m.default);drawAcg()}).catch(()=>{$('#acgNote').textContent='The world outline could not load, so cities are shown as dots. Tap the map, or choose a city, to see which lines run nearby.'});
+$('#acgChips').addEventListener('click',ev=>{const b=ev.target.closest('button');if(!b)return;const k=b.dataset.k;acgOn.has(k)?acgOn.delete(k):acgOn.add(k);drawAcg()});
+$('#map').addEventListener('click',ev=>{if(!cur||cur.asc==null)return;const svg=$('#map svg'),r=svg.getBoundingClientRect(),lo=(ev.clientX-r.left)/r.width*360-180,la=LAT1-(ev.clientY-r.top)/r.height*(LAT1-LAT0);
+ const near=CITIES.map(c=>({c,d:Math.hypot(wrap(c.lon-lo)*Math.cos(la*R),c.lat-la)})).sort((a,b)=>a.d-b.d)[0];
+ acgPick={lat:la,lon:lo,name:`${Math.abs(la).toFixed(1)}°${la>=0?'N':'S'}, ${Math.abs(lo).toFixed(1)}°${lo>=0?'E':'W'}${near&&near.d<4?' (near '+near.c.n+')':''}`};$('#acgCity').value='';drawAcg()});
+$('#acgCity').addEventListener('change',ev=>{const c=CITIES[+ev.target.value];acgPick=c?{lat:c.lat,lon:c.lon,name:c.n}:null;drawAcg()});
+$('#acgSvg').onclick=()=>{if(cur)saveFile(slug(cur.p.name)+'-astrocartography.svg',acgSVG(cur))};
 
 /* ---------- events ---------- */
 let tmr;$('#f').addEventListener('input',()=>{clearTimeout(tmr);tmr=setTimeout(draw,250)});

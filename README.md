@@ -10,6 +10,7 @@ A single-page astrology app that casts **sun charts** from a date and place of b
 - **Saved profiles**: when the page runs as a Claude artifact, each person's profiles are kept in their own private area of their Claude account. Otherwise they are kept in the browser's `localStorage`.
 - **Compare**: a bi-wheel with Ease, Spark and overall scores, plus sections on core natures, emotional fit, attraction, communication and the key contacts between the two charts.
 - **Daily forecast**: transits to the natal chart for any day, with a 7-day strip, the Moon's sign changes and Mercury retrograde notes.
+- **Astrocartography**: a world map of each planet's MC, IC, AC and DC lines at the moment of birth. You can check any place by tapping the map or choosing a city, and the app ranks the listed cities by nearby lines. This needs a birth time. The world outline (Natural Earth, public domain, via `world-atlas`) loads from jsDelivr; if it can't load, cities are shown as dots instead.
 - **Printouts**: A4 HTML sheets with an ink-on-white wheel for a single chart or a comparison, plus an SVG of the wheel.
 
 ## Accuracy
